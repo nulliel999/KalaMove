@@ -9,7 +9,7 @@ using MoveProject::Core;
 
 int main()
 {
-	Core::Initialize();
-
+	if (Core::CheckPaths()) Core::CopyFiles();
+	
 	return 0;
 }

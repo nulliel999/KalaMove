@@ -3,18 +3,40 @@
 //This is free software, and you are welcome to redistribute it under certain conditions.
 //Read LICENSE.md for more information.
 
-#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <filesystem>
+
+#include "logging/logging.hpp"
 
 #include "core/core.hpp"
 
-using std::cout;
-using std::cin;
+using KalaHeaders::Log;
+using KalaHeaders::LogType;
+
+using std::string;
+using std::ifstream;
+using std::ostringstream;
+using std::filesystem::exists;
+using std::filesystem::path;
+using std::filesystem::current_path;
+using std::filesystem::copy;
+using std::filesystem::copy_file;
+using std::filesystem::is_directory;
+using std::filesystem::is_regular_file;
 
 namespace MoveProject
 {
-	void Core::Initialize()
+	bool Core::CheckPaths()
 	{
-		cout << "1234";
-		cin.get();
+		Log::Print("check paths");
+
+		return true;
+	}
+
+	void Core::CopyFiles()
+	{
+		Log::Print("copy files");
 	}
 }

@@ -10,6 +10,10 @@ namespace MoveProject
 	class Core
 	{
 	public:
-		static void Initialize();
+		//Ensures all paths we need to copy from and to are valid
+		static bool CheckPaths();
+
+		//Actually handles the copying of all files
+		static void CopyFiles();
 	};
 }
