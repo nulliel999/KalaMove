@@ -1,6 +1,6 @@
 # Move Project
 
-The purpose of this project is to move files from KalaWindow to several external targets efficiently and quickly so we can avoid CMake and batch script hell. This ensures each target repository has the latest up to date 
+The purpose of this project is to move files from [KalaWindow](https://github.com/kalakit/kalawindow) to several external targets efficiently and quickly so we can avoid CMake and batch script hell. This ensures each target repository has the latest up to date content from KalaWindow
 
 It is not required to be used unless you want the exact same hierarchy structure as Lost Empire Entertainment uses for its development and testing of KalaWindow and the target repositories. If any target directories are missing then they are ignored.
 
@@ -13,13 +13,22 @@ Current targets:
 
 Required hierarchy:
 
-> Note: All names are case-sensitive and must match except the projects root folder names
+> Note: All names are case-sensitive and must match, except folders named 'example'
+
+> Note: each target folder requires _external_shared folder inside itself so that KalaWindow content can be copied to it correctly
 
 ```
-/projects_root
-	/MoveProject (this repository root)
-	/KalaWindow
-	/Elypso-engine
-	/Elypso-hub
-	/Circuit-chan
+/example
+	/MoveProject                     (this repository root)
+		/targets.txt                 (lists each project folder name)
+		/MoveProject.exe             (the executable itself)
+		/example/MoveProject         (optional sub-folder location)
+		/example/example/MoveProject (optional sub-folder location)
+	/KalaWindow                      (several files are copied from here)
+		/_external_shared            (all external libraries are copied from here)
+	/example
+		/_external_shared
+	/example
+		/_external_shared
+	and so on...
 ```
