@@ -16,6 +16,7 @@ using KalaHeaders::Log;
 using KalaHeaders::LogType;
 
 using std::string;
+using std::string_view;
 using std::ifstream;
 using std::ostringstream;
 using std::filesystem::exists;
@@ -26,33 +27,90 @@ using std::filesystem::copy_file;
 using std::filesystem::is_directory;
 using std::filesystem::is_regular_file;
 
+static const path PROJECT_ROOT = current_path();
+static const path KW_ROOT = current_path().parent_path() / "KalaWindow";
+
+static const path ELYPSO_ENGINE_ROOT = current_path().parent_path() / "Elypso-engine";
+static const path ELYPSO_HUB_ROOT    = current_path().parent_path() / "Elypso-hub";
+static const path CIRCUIT_CHAN_ROOT  = current_path().parent_path() / "Circuit-chan";
+static const path HINNAMASIN_ROOT    = current_path().parent_path() / "Hinnamasin";
+
+static bool RootIsValid();
+static void CopyToPath(path targetPath);
+
 namespace MoveProject
 {
-	bool Core::CheckPaths()
+	void Core::Run()
 	{
-		string currentPathStem = current_path().stem().string();
+		if (!RootIsValid()) return;
+
+		CopyToPath(ELYPSO_ENGINE_ROOT);
+		CopyToPath(ELYPSO_HUB_ROOT);
+		CopyToPath(CIRCUIT_CHAN_ROOT);
+		CopyToPath(HINNAMASIN_ROOT);
+
+		return;
+	}
+}
+
+bool RootIsValid()
+{
+	string currentPathStem = PROJECT_ROOT.stem().string();
+
+	if (PROJECT_ROOT.stem().string() != "MoveProject")
+	{
 		Log::Print(
-			"Currently located at parent folder '" + currentPathStem + "'.",
+			"Incorrect parent folder detected! Executable must be located inside 'MoveProject' folder.",
 			"INIT",
-			LogType::LOG_INFO);
+			LogType::LOG_ERROR);
 
-		if (currentPathStem != "MoveProject")
-		{
-			Log::Print(
-				"Incorrect parent folder detected! Executable must be located inside 'MoveProject' folder.",
-				"INIT",
-				LogType::LOG_ERROR);
-
-			return false;
-		}
-
-		Log::Print("check paths");
-
-		return true;
+		return false;
 	}
 
-	void Core::CopyFiles()
+	Log::Print(
+		"Currently located at folder '" + PROJECT_ROOT.string() + "'.",
+		"INIT",
+		LogType::LOG_SUCCESS);
+
+	if (!exists(KW_ROOT))
 	{
-		Log::Print("copy files");
+		Log::Print(
+			"Failed to find KalaWindow root folder!",
+			"INIT",
+			LogType::LOG_ERROR);
+
+		return false;
 	}
+
+	Log::Print(
+		"Found KalaWindow root folder at '" + KW_ROOT.string() + "'.",
+		"INIT",
+		LogType::LOG_SUCCESS);
+
+	return true;
+}
+
+void CopyToPath(path targetPath)
+{
+	if (!exists(targetPath))
+	{
+		Log::Print(
+			"Target path '" + targetPath.string() + "' does not exist, skipping copy.",
+			"COPY_FILE",
+			LogType::LOG_WARNING);
+
+		return;
+	}
+
+	Log::Print(
+		"Starting to copy to path '" + targetPath.string() + "'.",
+		"COPY_FILE",
+		LogType::LOG_INFO);
+
+	//handle copy here...
+
+	Log::Print(
+		"Finished copying content to '" + targetPath.string() + "'!",
+		"COPY_FILE",
+		LogType::LOG_SUCCESS);
 }

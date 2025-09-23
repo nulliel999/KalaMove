@@ -14,8 +14,7 @@ using std::cin;
 
 int main()
 {
-	bool success = Core::CheckPaths();
-	if (success) Core::CopyFiles();
+	Core::Run();
 	
 	Log::Print("Press any key to exit...");
 	cin.get();

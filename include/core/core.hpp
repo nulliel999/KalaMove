@@ -11,9 +11,7 @@ namespace MoveProject
 	{
 	public:
 		//Ensures all paths we need to copy from and to are valid
-		static bool CheckPaths();
-
-		//Actually handles the copying of all files
-		static void CopyFiles();
+		//and handles copying all files to relevant paths
+		static void Run();
 	};
 }
