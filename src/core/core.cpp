@@ -19,6 +19,7 @@ using KalaHeaders::LogType;
 using std::string;
 using std::string_view;
 using std::ifstream;
+using std::getline;
 using std::ostringstream;
 using std::vector;
 using std::filesystem::exists;
@@ -51,8 +52,6 @@ namespace MoveProject
 		if (!RootIsValid()) return;
 
 		vector<string> result = GetTargetRootPaths();
-
-		if (result.empty()) return;
 
 		for (const auto& value : result)
 		{
@@ -91,7 +90,7 @@ bool RootIsValid()
 	{
 		Log::Print(
 			"Executable is not located in the right folder! Place it inside 'MoveFolder' root or first or second subfolder.",
-			"INIT",
+			"ROOT",
 			LogType::LOG_ERROR);
 
 		return false;
@@ -99,7 +98,7 @@ bool RootIsValid()
 
 	Log::Print(
 		"Found true MoveProject root from '" + TRUE_ROOT.string() + "'.",
-		"INIT",
+		"ROOT",
 		LogType::LOG_SUCCESS);
 
 	KW_ROOT = TRUE_ROOT.parent_path() / KW_NAME;
@@ -108,7 +107,7 @@ bool RootIsValid()
 	{
 		Log::Print(
 			"Failed to find KalaWindow root folder from '" + KW_ROOT.string() + "'!",
-			"INIT",
+			"ROOT",
 			LogType::LOG_ERROR);
 
 		return false;
@@ -116,7 +115,7 @@ bool RootIsValid()
 
 	Log::Print(
 		"Found KalaWindow root folder from '" + KW_ROOT.string() + "'.",
-		"INIT",
+		"ROOT",
 		LogType::LOG_SUCCESS);
 
 	return true;
@@ -128,15 +127,48 @@ vector<string> GetTargetRootPaths()
 	{
 		Log::Print(
 			"Failed to find targets file from '" + TARGETS_FILE.string() + "'! It must be located in the same folder where the executable is placed at.",
-			"INIT",
+			"TARGET_FILE",
 			LogType::LOG_ERROR);
 
 		return{};
 	}
 
+	Log::Print(
+		"Found targets file '" + TARGETS_FILE.string() + "'! Starting to read from it.",
+		"TARGET_FILE",
+		LogType::LOG_SUCCESS);
+
 	vector<string> result{};
 
-	//handle reading targets file here...
+	ifstream file(TARGETS_FILE);
+
+	if (!file.is_open())
+	{
+		Log::Print(
+			"Failed to open targets file '" + TARGETS_FILE.string() + "' to read it!",
+			"TARGET_FILE",
+			LogType::LOG_ERROR);
+
+		return{};
+	}
+
+	string line{};
+	while (getline(file, line))
+	{
+		result.push_back(line);
+	}
+
+	file.close();
+
+	if (result.empty())
+	{
+		Log::Print(
+			"Did not find any target paths from targets file, there is nothing to copy.",
+			"TARGET_FILE",
+			LogType::LOG_WARNING);
+
+		return{};
+	}
 
 	return result;
 }
