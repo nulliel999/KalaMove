@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <filesystem>
 
 #include "logging/logging.hpp"
@@ -19,6 +20,7 @@ using std::string;
 using std::string_view;
 using std::ifstream;
 using std::ostringstream;
+using std::vector;
 using std::filesystem::exists;
 using std::filesystem::path;
 using std::filesystem::current_path;
@@ -39,6 +41,7 @@ static path TRUE_ROOT{};
 static path KW_ROOT{};
 
 static bool RootIsValid();
+static vector<string> GetTargetRootPaths();
 static void CopyToPath(path targetPath);
 
 namespace MoveProject
@@ -46,6 +49,15 @@ namespace MoveProject
 	void Core::Run()
 	{
 		if (!RootIsValid()) return;
+
+		vector<string> result = GetTargetRootPaths();
+
+		if (result.empty()) return;
+
+		for (const auto& value : result)
+		{
+			CopyToPath(TRUE_ROOT.parent_path() / value);
+		}
 
 		return;
 	}
@@ -85,16 +97,6 @@ bool RootIsValid()
 		return false;
 	}
 
-	if (!exists(TARGETS_FILE))
-	{
-		Log::Print(
-			"Failed to find targets file from '" + TARGETS_FILE.string() + "'! It must be located in the same folder where the executable is placed at.",
-			"INIT",
-			LogType::LOG_ERROR);
-
-		return false;
-	}
-
 	Log::Print(
 		"Found true MoveProject root from '" + TRUE_ROOT.string() + "'.",
 		"INIT",
@@ -120,12 +122,40 @@ bool RootIsValid()
 	return true;
 }
 
+vector<string> GetTargetRootPaths()
+{
+	if (!exists(TARGETS_FILE))
+	{
+		Log::Print(
+			"Failed to find targets file from '" + TARGETS_FILE.string() + "'! It must be located in the same folder where the executable is placed at.",
+			"INIT",
+			LogType::LOG_ERROR);
+
+		return{};
+	}
+
+	vector<string> result{};
+
+	//handle reading targets file here...
+
+	return result;
+}
+
 void CopyToPath(path targetPath)
 {
 	if (!exists(targetPath))
 	{
 		Log::Print(
 			"Target path '" + targetPath.string() + "' does not exist, skipping copy.",
+			"COPY_FILE",
+			LogType::LOG_WARNING);
+
+		return;
+	}
+	if (!is_directory(targetPath))
+	{
+		Log::Print(
+			"Target path '" + targetPath.string() + "' is not a directory, skipping copy.",
 			"COPY_FILE",
 			LogType::LOG_WARNING);
 
