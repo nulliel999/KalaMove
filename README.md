@@ -2,7 +2,7 @@
 
 The purpose of this project is to move files from [KalaWindow](https://github.com/kalakit/kalawindow) to several external targets efficiently and quickly so we can avoid CMake and batch script hell. This ensures each target repository has the latest up to date content from KalaWindow
 
-You do not need to use this executable for normal operation of KalaWindow or any other software or libraries made by KalaWindow unless you want the exact same hierarchy structure as Lost Empire Entertainment uses for its development and testing of KalaWindow and the target repositories. If any target directories are missing then they are ignored.
+You do not need to use this executable for normal operation of KalaWindow or any other software or libraries made by Lost Empire Entertainment unless you want the exact same hierarchy structure as Lost Empire Entertainment uses for its development and testing of KalaWindow and the target repositories. If any target directories are missing then they are ignored.
 
 Current targets:
 
