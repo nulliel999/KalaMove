@@ -1,34 +1,53 @@
-# Move Project
+# KalaMove
 
-The purpose of this project is to move files from [KalaWindow](https://github.com/kalakit/kalawindow) to several external targets efficiently and quickly so we can avoid CMake and batch script hell. This ensures each target repository has the latest up to date content from KalaWindow
+**KalaMove** is a project that grew from a system of many batch files, CMake post build commands and lots of manual file moving into a file movement system of its own. KMF is the official file format for KalaMoveFile files used by KalaMove.exe, the executable of this system.
 
-You do not need to use this executable for normal operation of KalaWindow or any other software or libraries made by Lost Empire Entertainment unless you want the exact same hierarchy structure as Lost Empire Entertainment uses for its development and testing of KalaWindow and the target repositories. If any target directories are missing then they are ignored.
+**KalaMove** is natively supported on Windows and Linux because it mostly uses C++ standard libraries and no OS-specific libraries. The only external library it uses is [logging.hpp](https://github.com/KalaKit/KalaHeaders/blob/main/logging.hpp) for logging messages to the console.
 
-Current targets:
+## How to use 
 
-- Circuit Chan
-- Elypso Engine
-- Elypso Hub
-- Hinnamasin (internal project)
+The first official .kmf version is 1.0 and it is the standard format used for all current KalaKit and Lost Empire Entertainment file distribution systems.
 
-Required hierarchy:
+Old versions are not guaranteed to work with newer .kmf files.
 
-> Note: All names are case-sensitive and must match, except folders named 'example'
+To move files with KalaMove.exe simply create a text file and set its extension to .kmf and write your content inside it. Follow 'MANIFEST.kmf' or the example section below to see how to use .kmf files correctly with KalaMove.exe. The details section below explains syntax rules and other info in more depth.
 
-> Note: each target folder requires _external_shared folder inside itself so that KalaWindow content can be copied to it correctly
+---
+
+## Example
 
 ```
-/example
-	/MoveProject                     (this repository root)
-		/targets.txt                 (lists each project folder name)
-		/MoveProject.exe             (the executable itself)
-		/example/MoveProject         (optional sub-folder location)
-		/example/example/MoveProject (optional sub-folder location)
-	/KalaWindow                      (several files are copied from here)
-		/_external_shared            (all external libraries are copied from here)
-	/example
-		/_external_shared
-	/example
-		/_external_shared
-	and so on...
+#KMF VERSION 1.0
+
+//
+// This example .kmf file copies the KalaWindow readme file and the
+// glm folder within its _external_shared folder to the target
+// Elypso engine _external_shared folders
+//
+
+//file example
+origin: KalaWindow@readme.md
+target: Elypso-engine@_external_shared@KalaWindow@readme.md
+overwrite: yes
+
+//folder example
+origin: KalaWindow@_external_shared@glm
+target: Elypso-engine@_external_shared@glm
+overwrite: no
 ```
+
+---
+
+## Details
+
+These are the important rules you must follow when using KalaMove and creating .kmf files.
+
+- all paths must be relative to the parent directory of KalaMove.exe
+- use '@' for paths
+- use '/' or any number of it for comments
+- 'origin' is where content is copied from
+- 'target' is where content is copied to, it supports multiple paths, separate each path with ', '
+- 'overwrite' is used to toggle if overwrite is allowed or not
+- each move block MUST have 'origin', 'target' and 'overwrite' keys and the key must end with ': '
+- any invalid or non-existing origin stops the whole program and you must fix it
+- any invalid or non-existing target is ignored and KalaMove simply skips it and tries to paste to the next target path
