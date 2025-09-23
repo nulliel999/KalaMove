@@ -3,13 +3,22 @@
 //This is free software, and you are welcome to redistribute it under certain conditions.
 //Read LICENSE.md for more information.
 
+#include "logging/logging.hpp"
 #include "core/core.hpp"
 
 using MoveProject::Core;
 
+using KalaHeaders::Log;
+
+using std::cin;
+
 int main()
 {
-	if (Core::CheckPaths()) Core::CopyFiles();
+	bool success = Core::CheckPaths();
+	if (success) Core::CopyFiles();
 	
+	Log::Print("Press any key to exit...");
+	cin.get();
+
 	return 0;
 }

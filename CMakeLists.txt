@@ -64,12 +64,12 @@ target_include_directories(MoveProject PRIVATE
 target_compile_definitions(MoveProject PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 
 # Hide console in release mode
-if(IS_RELEASE)
-    set_target_properties(MoveProject PROPERTIES WIN32_EXECUTABLE TRUE)
-    if (MSVC)
-        set_target_properties(MoveProject PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
-    endif()
-endif()
+#if(IS_RELEASE)
+#    set_target_properties(MoveProject PROPERTIES WIN32_EXECUTABLE TRUE)
+#    if (MSVC)
+#        set_target_properties(MoveProject PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
+#    endif()
+#endif()
 
 # Installation
 set(CMAKE_INSTALL_BINDIR bin)

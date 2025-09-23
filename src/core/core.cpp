@@ -30,6 +30,22 @@ namespace MoveProject
 {
 	bool Core::CheckPaths()
 	{
+		string currentPathStem = current_path().stem().string();
+		Log::Print(
+			"Currently located at parent folder '" + currentPathStem + "'.",
+			"INIT",
+			LogType::LOG_INFO);
+
+		if (currentPathStem != "MoveProject")
+		{
+			Log::Print(
+				"Incorrect parent folder detected! Executable must be located inside 'MoveProject' folder.",
+				"INIT",
+				LogType::LOG_ERROR);
+
+			return false;
+		}
+
 		Log::Print("check paths");
 
 		return true;
