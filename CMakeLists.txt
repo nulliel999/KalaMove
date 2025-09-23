@@ -75,14 +75,17 @@ target_compile_definitions(MoveProject PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 set(CMAKE_INSTALL_BINDIR bin)
 install(TARGETS MoveProject DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-# Copy targets.txt
+# Copy important files
+set(COPY_TARGETS README.md LICENSE.md targets.txt)
+foreach(FILE ${COPY_TARGETS})
 add_custom_command(TARGET MoveProject POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove 
-		"$<TARGET_FILE_DIR:MoveProject>/targets.txt"
+        "$<TARGET_FILE_DIR:MoveProject>/${FILE}"
     COMMAND ${CMAKE_COMMAND} -E copy
-		"${CMAKE_SOURCE_DIR}/targets.txt"
-		"$<TARGET_FILE_DIR:MoveProject>/targets.txt"
+		"${CMAKE_SOURCE_DIR}/${FILE}"
+		"$<TARGET_FILE_DIR:MoveProject>/${FILE}"
 )
+endforeach()
 
 # Package
 include(CPack)
