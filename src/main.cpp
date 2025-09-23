@@ -3,8 +3,8 @@
 //This is free software, and you are welcome to redistribute it under certain conditions.
 //Read LICENSE.md for more information.
 
+#include "core.hpp"
 #include "logging/logging.hpp"
-#include "core/core.hpp"
 
 using MoveProject::Core;
 
@@ -16,7 +16,7 @@ int main()
 {
 	Core::Run();
 	
-	Log::Print("Press any key to exit...");
+	Log::Print("\nPress 'Enter' to exit...");
 	cin.get();
 
 	return 0;

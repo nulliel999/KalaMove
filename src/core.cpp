@@ -9,9 +9,8 @@
 #include <vector>
 #include <filesystem>
 
+#include "core.hpp"
 #include "logging/logging.hpp"
-
-#include "core/core.hpp"
 
 using KalaHeaders::Log;
 using KalaHeaders::LogType;
