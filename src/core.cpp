@@ -21,6 +21,7 @@ using std::ifstream;
 using std::getline;
 using std::ostringstream;
 using std::vector;
+using std::cin;
 using std::filesystem::exists;
 using std::filesystem::path;
 using std::filesystem::current_path;
@@ -28,9 +29,12 @@ using std::filesystem::copy;
 using std::filesystem::copy_file;
 using std::filesystem::is_directory;
 using std::filesystem::is_regular_file;
+using std::filesystem::directory_iterator;
+using std::filesystem::recursive_directory_iterator;
 
 constexpr string_view ROOT_NAME = "MoveProject";
 constexpr string_view KW_NAME = "KalaWindow";
+constexpr string_view EXT_NAME = "_external_shared";
 
 static const path PROJECT_ROOT_FIRST  = current_path();
 static const path PROJECT_ROOT_SECOND = current_path().parent_path();
@@ -57,7 +61,8 @@ namespace MoveProject
 			CopyToPath(TRUE_ROOT.parent_path() / value);
 		}
 
-		return;
+		Log::Print("\nPress 'Enter' to exit...");
+		cin.get();
 	}
 }
 
@@ -193,15 +198,60 @@ void CopyToPath(path targetPath)
 		return;
 	}
 
+	string targetStem = targetPath.stem().string();
+
+	if (targetStem == ROOT_NAME
+		|| targetStem == KW_NAME)
+	{
+		Log::Print(
+			"Target path '" + targetPath.string() + "' cannot be 'KalaWindow' or 'MoveTarget'.",
+			"COPY_FILE",
+			LogType::LOG_WARNING);
+
+		return;
+	}
+
+	path external_shared{};
+
+	for (const auto& target : directory_iterator(targetPath))
+	{
+		if (!is_directory(target)) continue;
+
+		if (path(target).stem() == EXT_NAME)
+		{
+			external_shared = target;
+			break;
+		}
+	}
+
+	if (external_shared.empty())
+	{
+		Log::Print(
+			"External shared folder was not found in target path '" + targetPath.string() + "', skipping copy",
+			"COPY_FILE",
+			LogType::LOG_WARNING);
+
+		return;
+	}
+	if (!exists(external_shared))
+	{
+		Log::Print(
+			"External shared folder '" + external_shared.string() + "' does not exist, skipping copy",
+			"COPY_FILE",
+			LogType::LOG_WARNING);
+
+		return;
+	}
+
 	Log::Print(
-		"Starting to copy to path '" + targetPath.string() + "'.",
-		"COPY_FILE",
-		LogType::LOG_INFO);
+		"Target path '" + targetPath.stem().string() + "' is valid! Starting to copy to it.",
+		"TARGET_FILE",
+		LogType::LOG_SUCCESS);
 
 	//handle copy here...
 
 	Log::Print(
-		"Finished copying content to '" + targetPath.string() + "'!",
+		"Finished copying content to '" + targetPath.stem().string() + "'!",
 		"COPY_FILE",
 		LogType::LOG_SUCCESS);
 }
