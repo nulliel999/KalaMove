@@ -5,7 +5,7 @@
 
 #include "core.hpp"
 
-using MoveProject::Core;
+using KalaMove::Core;
 
 int main()
 {

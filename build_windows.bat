@@ -36,7 +36,7 @@ call :BuildWithPreset debug Debug
 call :BuildWithPreset release Release
 
 echo =====================================
-echo [SUCCESS] Finished building and installing MoveProject!
+echo [SUCCESS] Finished building and installing KalaMove!
 echo =====================================
 echo.
 pause
@@ -57,7 +57,7 @@ set "PRESET=%~1"
 set "CONFIG=%~2"
 
 echo =====================================
-echo [INFO] Building MoveProject in %PRESET% (%CONFIG%) mode...
+echo [INFO] Building KalaMove in %PRESET% (%CONFIG%) mode...
 echo =====================================
 echo.
 

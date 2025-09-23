@@ -5,7 +5,7 @@
 
 #pragma once
 
-namespace MoveProject
+namespace KalaMove
 {
 	class Core
 	{
