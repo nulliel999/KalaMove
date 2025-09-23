@@ -15,9 +15,11 @@ Required hierarchy:
 
 > Note: All names are case-sensitive and must match except the projects root folder names
 
+```
 /projects_root
 	/MoveProject (this repository root)
 	/KalaWindow
 	/Elypso-engine
 	/Elypso-hub
 	/Circuit-chan
+```
