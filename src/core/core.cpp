@@ -27,13 +27,16 @@ using std::filesystem::copy_file;
 using std::filesystem::is_directory;
 using std::filesystem::is_regular_file;
 
-static const path PROJECT_ROOT = current_path();
-static const path KW_ROOT = current_path().parent_path() / "KalaWindow";
+constexpr string_view ROOT_NAME = "MoveProject";
+constexpr string_view KW_NAME = "KalaWindow";
 
-static const path ELYPSO_ENGINE_ROOT = current_path().parent_path() / "Elypso-engine";
-static const path ELYPSO_HUB_ROOT    = current_path().parent_path() / "Elypso-hub";
-static const path CIRCUIT_CHAN_ROOT  = current_path().parent_path() / "Circuit-chan";
-static const path HINNAMASIN_ROOT    = current_path().parent_path() / "Hinnamasin";
+static const path PROJECT_ROOT_FIRST  = current_path();
+static const path PROJECT_ROOT_SECOND = current_path().parent_path();
+static const path PROJECT_ROOT_THIRD  = current_path().parent_path().parent_path();
+static const path TARGETS_FILE = current_path() / "targets.txt";
+
+static path TRUE_ROOT{};
+static path KW_ROOT{};
 
 static bool RootIsValid();
 static void CopyToPath(path targetPath);
@@ -44,23 +47,48 @@ namespace MoveProject
 	{
 		if (!RootIsValid()) return;
 
-		CopyToPath(ELYPSO_ENGINE_ROOT);
-		CopyToPath(ELYPSO_HUB_ROOT);
-		CopyToPath(CIRCUIT_CHAN_ROOT);
-		CopyToPath(HINNAMASIN_ROOT);
-
 		return;
 	}
 }
 
 bool RootIsValid()
 {
-	string currentPathStem = PROJECT_ROOT.stem().string();
+	string firstStem = PROJECT_ROOT_FIRST.stem().string();
+	string secondStem = PROJECT_ROOT_SECOND.stem().string();
+	string thirdStem = PROJECT_ROOT_THIRD.stem().string();
 
-	if (PROJECT_ROOT.stem().string() != "MoveProject")
+	bool foundRoot{};
+
+	if (firstStem == ROOT_NAME)
+	{
+		foundRoot = true;
+		TRUE_ROOT = PROJECT_ROOT_FIRST;
+	}
+	else if (secondStem == ROOT_NAME)
+	{
+		foundRoot = true;
+		TRUE_ROOT = PROJECT_ROOT_SECOND;
+	}
+	else if (thirdStem == ROOT_NAME)
+	{
+		foundRoot = true;
+		TRUE_ROOT = PROJECT_ROOT_THIRD;
+	}
+
+	if (!foundRoot)
 	{
 		Log::Print(
-			"Incorrect parent folder detected! Executable must be located inside 'MoveProject' folder.",
+			"Executable is not located in the right folder! Place it inside 'MoveFolder' root or first or second subfolder.",
+			"INIT",
+			LogType::LOG_ERROR);
+
+		return false;
+	}
+
+	if (!exists(TARGETS_FILE))
+	{
+		Log::Print(
+			"Failed to find targets file from '" + TARGETS_FILE.string() + "'! It must be located in the same folder where the executable is placed at.",
 			"INIT",
 			LogType::LOG_ERROR);
 
@@ -68,14 +96,16 @@ bool RootIsValid()
 	}
 
 	Log::Print(
-		"Currently located at folder '" + PROJECT_ROOT.string() + "'.",
+		"Found true MoveProject root from '" + TRUE_ROOT.string() + "'.",
 		"INIT",
 		LogType::LOG_SUCCESS);
+
+	KW_ROOT = TRUE_ROOT.parent_path() / KW_NAME;
 
 	if (!exists(KW_ROOT))
 	{
 		Log::Print(
-			"Failed to find KalaWindow root folder!",
+			"Failed to find KalaWindow root folder from '" + KW_ROOT.string() + "'!",
 			"INIT",
 			LogType::LOG_ERROR);
 
@@ -83,7 +113,7 @@ bool RootIsValid()
 	}
 
 	Log::Print(
-		"Found KalaWindow root folder at '" + KW_ROOT.string() + "'.",
+		"Found KalaWindow root folder from '" + KW_ROOT.string() + "'.",
 		"INIT",
 		LogType::LOG_SUCCESS);
 
