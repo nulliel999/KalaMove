@@ -10,7 +10,8 @@
 #include <filesystem>
 
 #include "core.hpp"
-#include "logging/logging.hpp"
+#include "external/logging.hpp"
+#include "external/string_helpers.hpp"
 
 using KalaHeaders::Log;
 using KalaHeaders::LogType;
