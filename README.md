@@ -82,9 +82,8 @@ All syntax rules you must follow when creating `.kmf` files.
 #KMF VERSION 1.0
 
 //
-// This example .kmf file copies the KalaWindow readme file and the
-// glm folder within its _external_shared folder to the target
-// Elypso engine _external_shared folders
+// This example .kmf file shows how to use the three different actions
+// and how to handle relative, absolute, parent and current directory.
 //
 
 //file example
@@ -98,8 +97,8 @@ target: Elypso-engine@_external_shared@glm
 action: copy
 
 //absolute path example
-origin: @C:@Users@greenlaserDocuments@_cpp@KalaWindow@readme.md
-target: @C:@Users@greenlaserDocuments@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
+origin: @C:@Users@greenlaser@Documents@_cpp@KalaWindow@readme.md
+target: @C:@Users@greenlaser@Documents@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
 action: forcecopy
 
 //relative parent directory example
