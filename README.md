@@ -66,7 +66,7 @@ All syntax rules you must follow when creating `.kmf` files.
 | Rule          | Description |
 |---------------|-------------|
 | Name rule     | Origin name does not need to match with target names as long as extensions match and file-file or dir-dir matches |
-| Block rule    | Each move block must contain `origin`, `target`, and `overwrite` keys, and each key must end with `: ` |
+| Block rule    | Each move block must contain `origin`, `target`, and `action` keys, and each key must end with `: ` |
 | `@@`          | Use `@@` for absolute paths, relative path to executable is used if no `@@` was added at the front of a path |
 | `@`           | Use `@` as the directory separator to ensure cross-platform compatibility |
 | `..@`, `.@`   | Use `..@` to reference the parent directory and `.@` for the current directory |
