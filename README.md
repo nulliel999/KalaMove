@@ -18,9 +18,9 @@ All available keys you can use in .kmf files.
 
 | Key          | Description |
 |--------------|-------------|
-| `origin`     | Defines the source path where content is copied from. Must always exist |
-| `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist. |
-| `overwrite`  | Toggles whether existing files at the target should be overwritten (`yes` or `no`). Must always exist |
+| `origin`     | Defines the source path where content is copied from, the origin path must always exist |
+| `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist |
+| `overwrite`  | Toggles whether existing files at the target should be overwritten (`yes` or `no`), the overwrite value must always exist |
 
 ### Rules
 
@@ -30,7 +30,7 @@ All syntax rules you must follow when creating .kmf files.
 |---------------|-------------|
 | Path rule     | All paths in .kmf files must be relative to the **KalaMove** executable |
 | Block rule    | Each move block must contain `origin`, `target`, and `overwrite` keys, and each key must end with `: ` |
-| `@`           | Used as the directory separator to ensure cross-platform compatibility |
+| `@`           | Use `@` as the directory separator to ensure cross-platform compatibility |
 | `..@`, `.@`   | Use `..@` to reference the parent directory and `.@` for the current directory |
 | `/`           | Lines starting with `/` (or multiple `/`) are treated as comments |
 
