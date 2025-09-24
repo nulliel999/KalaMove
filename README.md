@@ -4,6 +4,8 @@
 
 **KalaMove** is natively supported on Windows and Linux because it mostly uses C++ standard libraries and no OS-specific libraries. The same manifest .kmf file is also reusable across Windows and Linux because it uses OS-agnostic path separator `@` instead of the common `\\` or `\` or `/`. 
 
+---
+
 ## How to use 
 
 The first official .kmf version is 1.0 and it is the standard format used for all current KalaKit and Lost Empire Entertainment file distribution systems.
