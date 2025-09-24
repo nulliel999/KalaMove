@@ -1,14 +1,6 @@
 # KalaMove
 
-**KalaMove** is a project that grew from a system of many batch and shell files, CMake post build commands and lots of manual file moving into a file movement system of its own. `.kmf` is the official file format for **KalaMoveFile** files used by **KalaMove**, the executable of this file move system. The first official `.kmf` version is 1.0 and it is the standard format used for distributing all **KalaKit** and **Lost Empire Entertainment** files. 
-
-**KalaMove** is natively supported on **Windows** and **Linux** because it mostly uses C++ standard libraries and no OS-specific libraries. Only two external libraries are used and they can be found in `/include/external`.
-
----
-
-## Key Advantages  
-
-`.kmf` files and **KalaMove** are designed as a lightweight, strict, and repeatable alternative to batch/shell scripts, CMake commands, or even full installers when all you need is reliable file movement.  
+**KalaMove** is an executable that uses `.kmf` files that are designed as a lightweight, strict, and repeatable alternative to batch/shell scripts, CMake commands, or even full installers when all you need is reliable file movement. **KalaMove** is natively supported on **Windows** and **Linux** because it mostly uses C++ standard libraries and no OS-specific libraries. Only two external libraries are used and they can be found in `/include/external`.
 
 ### Why `.kmf` over scripting?  
 
