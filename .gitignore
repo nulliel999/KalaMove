@@ -2,6 +2,7 @@
 /release
 /.vs
 *.pdb 
+*.kmf
 
 //ignore vulkan shader spv files
 *.spv

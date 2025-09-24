@@ -43,6 +43,7 @@ using std::filesystem::recursive_directory_iterator;
 //Each kalamovefile block in the .kmf file
 struct KMF
 {
+	int line{};
 	path origin{};
 	vector<path> targets{};
 	string action{};
@@ -76,6 +77,14 @@ namespace KalaMove
 {
 	void Core::Run()
 	{
+		ostringstream oss{};
+
+		oss << "==============================\n"
+			<< "== KALAMOVE 1.0\n"
+			<< "==============================\n";
+
+		Log::Print(oss.str());
+
 		vector<path> kmfFiles = GetAllKMFFiles();
 
 		if (kmfFiles.empty())
@@ -113,6 +122,8 @@ namespace KalaMove
 		{
 			HandleKMFBlock(kmf);
 		}
+
+		Exit();
 	}
 }
 
@@ -142,6 +153,16 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 {
 	vector<KMF> result{};
 
+	bool foundVersion = false;
+	string line{};
+	static int lineNumber{};
+
+	static bool hasOrigin{};
+	static bool hasTargets{};
+	static bool hasAction{};
+
+	static struct KMF kmfBlock {};
+
 	ifstream file(kmfFile);
 
 	if (!file.is_open())
@@ -154,23 +175,45 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 		return{};
 	}
 
-	auto IsValidVersion = [](const string& line)
+	auto IsValidVersion = [](
+		const string& line,
+		const string& kmfPath,
+		int lineNumber)
 		{
 			//correct version was found
 			if (line == KMF_VERSION_NAME) return true;
 
 			//found version tag but incorrect version or invalid version string was found
-			if (!StartsWith(line, "#KMF VERSION ")
-				|| line.empty())
+			if (!StartsWith(line, "#KMF VERSION "))
 			{
+				Log::Print(
+					"Kmf file '" + kmfPath + "' has an invalid version '" + line + "' at line '" + to_string(lineNumber) + "'!",
+					"READ_KMF",
+					LogType::LOG_ERROR);
+
 				return false;
 			}
 			else
 			{
 				vector<string> split = SplitString(line, " ");
-				if (split.size() != 3
-					|| split[2] != KMF_VERSION_NUMBER)
+
+				if (split.size() > 3)
 				{
+					Log::Print(
+						"Kmf file '" + kmfPath + "' has an invalid version '" + line + "' with too many values at line '" + to_string(lineNumber) + "'!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return false;
+				}
+
+				if (split[2] != KMF_VERSION_NUMBER)
+				{
+					Log::Print(
+						"Kmf file '" + kmfPath + "' has an invalid version number '" + split[2] + "' at line '" + to_string(lineNumber) + "'!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
 					return false;
 				}
 			}
@@ -178,20 +221,25 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			return true;
 		};
 
-	bool foundVersion = false;
-	string line{};
-	static int lineNumber{};
+	auto StoreContent = [&]()
+		{
+			result.push_back(kmfBlock);
 
-	static bool hasOrigin{};
-	static bool hasTargets{};
-	static bool hasAction{};
+			kmfBlock.origin.clear();
+			kmfBlock.targets.clear();
+			kmfBlock.action.clear();
 
-	static struct KMF kmfBlock{};
+			hasOrigin = false;
+			hasTargets = false;
+			hasAction = false;
+		};
 
 	while (getline(file, line))
 	{
-		lineNumber++;
+		bool isLastLine = file.peek() == EOF;
 
+		lineNumber++;
+		
 		//skip empty and comment lines
 		if (line.empty()
 			|| StartsWith(line, "//"))
@@ -202,26 +250,21 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 		//version must always be at the top
 		if (!foundVersion)
 		{
-			foundVersion = IsValidVersion(line);
+			foundVersion = IsValidVersion(
+				line,
+				kmfFile.string(),
+				lineNumber);
 
-			if (!foundVersion)
-			{
-				Log::Print(
-					"Kmf file '" + kmfFile.string() + "' has invalid version '" + line + "' at line '" + to_string(lineNumber) + "'!",
-					"READ_KMF",
-					LogType::LOG_ERROR);
+			if (isLastLine) StoreContent();
 
-				return{};
-			}
-			else
-			{
-				Log::Print(
-					"Kmf file '" + kmfFile.stem().string() + "' has correct version '" + line + "'.",
-					"READ_KMF",
-					LogType::LOG_SUCCESS);
+			if (!foundVersion) return{};
 
-				continue;
-			}
+			Log::Print(
+				"Kmf file '" + kmfFile.stem().string() + "' has a correct version '" + line + "' at line '" + to_string(lineNumber) + "'.",
+				"READ_KMF",
+				LogType::LOG_DEBUG);
+
+			continue;
 		}
 
 		//
@@ -230,6 +273,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 
 		if (!hasOrigin)
 		{
+			kmfBlock.line = lineNumber;
+
 			if (!StartsWith(line, "origin: "))
 			{
 				Log::Print(
@@ -237,6 +282,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
@@ -248,6 +294,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
@@ -271,16 +318,19 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
 			Log::Print(
-				"Kmf file '" + kmfFile.stem().string() + "' has correct origin '" + originPathString + "'.",
+				"Kmf file '" + kmfFile.stem().string() + "' has a correct origin '" + originPathString + "' at line '" + to_string(lineNumber) + "'.",
 				"READ_KMF",
-				LogType::LOG_SUCCESS);
+				LogType::LOG_DEBUG);
 
 			kmfBlock.origin = originPath;
 			hasOrigin = true;
+
+			if (isLastLine) StoreContent();
 			continue;
 		}
 
@@ -297,6 +347,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
@@ -308,6 +359,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
@@ -319,6 +371,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
@@ -342,7 +395,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				if (kmfBlock.origin == fullTarget)
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin cannot be the same path as target path '" + correctTarget + "'!",
+						"Kmf file '" + kmfFile.string() + "' has an invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin cannot be the same path as target path '" + correctTarget + "'!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
@@ -353,7 +406,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					&& !fullTarget.has_extension())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin has an extension but target '" + correctTarget + "' does not!",
+						"Kmf file '" + kmfFile.string() + "' has an invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin has an extension but target '" + correctTarget + "' does not!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
@@ -364,7 +417,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					&& fullTarget.has_extension())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin does not have an extension but target '" + correctTarget + "' does!",
+						"Kmf file '" + kmfFile.string() + "' has an invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin does not have an extension but target '" + correctTarget + "' does!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
@@ -377,12 +430,17 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					!= fullTarget.extension().string())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin and target are regular files, origin has extension '" + kmfBlock.origin.extension().string() + "' but target '" + correctTarget + "' did not have the same extension!",
+						"Kmf file '" + kmfFile.string() + "' has an invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin and target are regular files, origin has extension '" + kmfBlock.origin.extension().string() + "' but target '" + correctTarget + "' did not have the same extension!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
 					continue;
 				}
+
+				Log::Print(
+					"Kmf file '" + kmfFile.stem().string() + "' has correct targets at line '" + to_string(lineNumber) + "'.",
+					"READ_KMF",
+					LogType::LOG_DEBUG);
 
 				kmfBlock.targets.push_back(fullTarget);
 			}
@@ -395,10 +453,13 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
 			hasTargets = true;
+
+			if (isLastLine) StoreContent();
 			continue;
 		}
 
@@ -415,6 +476,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
@@ -426,39 +488,30 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
 			if (find(actionTypes.begin(), actionTypes.end(), actionString) == actionTypes.end())
 			{
 				Log::Print(
-					"Kmf file '" + kmfFile.string() + "' has an invalid action value at line '" + to_string(lineNumber) + "'!",
+					"Kmf file '" + kmfFile.string() + "' has an invalid action value '" + actionString + "' at line '" + to_string(lineNumber) + "'!",
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
+				if (isLastLine) StoreContent();
 				return {};
 			}
 
 			kmfBlock.action = actionString;
-		}
+			hasAction = true;
 
-		if (hasOrigin
-			&& hasTargets
-			&& hasAction)
-		{
-			//
-			// PUSH TO RESULT AND CLEANUP
-			//
+			StoreContent();
 
-			result.push_back(kmfBlock);
-
-			kmfBlock.origin.clear();
-			kmfBlock.targets.clear();
-			kmfBlock.action.clear();
-
-			hasOrigin = false;
-			hasTargets = false;
-			hasAction = false;
+			Log::Print(
+				"Kmf file '" + kmfFile.stem().string() + "' has a correct action '" + actionString + "' at line '" + to_string(lineNumber) + "'.",
+				"READ_KMF",
+				LogType::LOG_DEBUG);
 		}
 	}
 
@@ -472,10 +525,43 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 		return{};
 	}
 
+	for (const auto& kmf : result)
+	{
+		if (kmf.targets.empty())
+		{
+			string targetLine = to_string(kmf.line + 1);
+
+			Log::Print(
+				"Kmf file '" + kmfFile.string() + "' is has no assigned valid targets at line '" + targetLine + "'!",
+				"READ_KMF",
+				LogType::LOG_ERROR);
+
+			return{};
+		}
+
+		if (kmf.action.empty())
+		{
+			string targetLine = to_string(kmf.line + 2);
+
+			Log::Print(
+				"Kmf file '" + kmfFile.string() + "' is has no assigned action at line '" + targetLine + "'!",
+				"READ_KMF",
+				LogType::LOG_ERROR);
+
+			return{};
+		}
+	}
+
 	return result;
 }
 
 void HandleKMFBlock(KMF kmfBlock)
 {
-
+	for (const auto& target : kmfBlock.targets)
+	{
+		Log::Print(
+			"Starting to " + kmfBlock.action + " origin '" + kmfBlock.origin.string() + "' to target '" + target.string() + "'.",
+			"MOVE_KMF",
+			LogType::LOG_SUCCESS);
+	}
 }
