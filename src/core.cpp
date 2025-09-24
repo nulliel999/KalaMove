@@ -218,7 +218,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				Log::Print(
 					"Kmf file '" + kmfFile.stem().string() + "' has correct version '" + line + "'.",
 					"READ_KMF",
-					LogType::LOG_DEBUG);
+					LogType::LOG_SUCCESS);
 
 				continue;
 			}
@@ -277,7 +277,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			Log::Print(
 				"Kmf file '" + kmfFile.stem().string() + "' has correct origin '" + originPathString + "'.",
 				"READ_KMF",
-				LogType::LOG_DEBUG);
+				LogType::LOG_SUCCESS);
 
 			kmfBlock.origin = originPath;
 			hasOrigin = true;
@@ -342,42 +342,42 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				if (kmfBlock.origin == fullTarget)
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin cannot be the same path as target path '" + fullTarget.string() + "'!",
+						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin cannot be the same path as target path '" + correctTarget + "'!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
 					continue;
 				}
 
-				if (is_directory(kmfBlock.origin)
-					&& !is_directory(fullTarget))
+				if (kmfBlock.origin.has_extension()
+					&& !fullTarget.has_extension())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin was directory but target '" + fullTarget.string() + "' is a regular file!",
+						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin has an extension but target '" + correctTarget + "' does not!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
 					continue;
 				}
 
-				if (is_regular_file(kmfBlock.origin)
-					&& !is_regular_file(fullTarget))
+				if (!kmfBlock.origin.has_extension()
+					&& fullTarget.has_extension())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin was regular file but target '" + fullTarget.string() + "' is a directory!",
+						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin does not have an extension but target '" + correctTarget + "' does!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
 					continue;
 				}
 
-				if (is_regular_file(kmfBlock.origin)
-					&& is_regular_file(fullTarget)
-					&& (kmfBlock.origin.extension().string()
-					!= fullTarget.extension().string()))
+				if (kmfBlock.origin.has_extension()
+					&& fullTarget.has_extension()
+					&& kmfBlock.origin.extension().string()
+					!= fullTarget.extension().string())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin and target are regular files, origin has extension '" + kmfBlock.origin.extension().string() + "' but target '" + fullTarget.string() + "' did not have the same extension!",
+						"Kmf file '" + kmfFile.string() + "' has invalid target at line '" + to_string(lineNumber) + "', it was skipped. Origin and target are regular files, origin has extension '" + kmfBlock.origin.extension().string() + "' but target '" + correctTarget + "' did not have the same extension!",
 						"READ_KMF",
 						LogType::LOG_WARNING);
 
