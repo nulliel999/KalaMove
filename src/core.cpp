@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <array>
 #include <filesystem>
 
 #include "core.hpp"
@@ -26,6 +27,7 @@ using std::ifstream;
 using std::getline;
 using std::ostringstream;
 using std::vector;
+using std::array;
 using std::cin;
 using std::filesystem::exists;
 using std::filesystem::path;
@@ -42,7 +44,7 @@ struct KMF
 {
 	path origin{};
 	vector<path> targets{};
-	bool overwrite{};
+	string action{};
 };
 
 static const path thisPath = current_path();
@@ -50,6 +52,13 @@ static const path thisPath = current_path();
 constexpr string_view KMF_VERSION_NUMBER = "1.0";
 constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
 constexpr string_view KMF_EXTENSION = ".ktf";
+
+static const array<string, 3> actionTypes =
+{
+	"move",    //move file to first target and overwrite, forcecopy to all other targets
+	"copy",    //copy file to target only if target does not already have this file
+	"fullcopy" //copy file to target and overwrite
+};
 
 static vector<path> GetAllKMFFiles();
 static vector<KMF> GetAllKMFContent(path kmfFile);
@@ -205,13 +214,13 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 
 		static bool hasOrigin{};
 		static bool hasTargets{};
-		static bool hasOverwrite{};
+		static bool hasAction{};
 
 		static struct KMF kmfBlock{};
 
 		if (!hasOrigin
 			&& !hasTargets
-			&& !hasOverwrite)
+			&& !hasAction)
 		{
 			//
 			// GET ORIGIN PATH
@@ -240,11 +249,17 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					return {};
 				}
 
+				bool isAbsolute = StartsWith(originPathString, "@@");
+
+				//add path relative to exe as prefix if not absolute
+				if (!isAbsolute)
+				{
 #ifdef _WIN32
-				originPathString = ReplaceAllFromString(originPathString, "@", "\\");
+					originPathString = ReplaceAllFromString(originPathString, "@", "\\");
 #else
-				originPathString = ReplaceAllFromString(originPathString, "@", "/");
+					originPathString = ReplaceAllFromString(originPathString, "@", "/");
 #endif
+				}
 
 				path originPath = thisPath / originPathString;
 				if (!exists(originPath))
@@ -303,11 +318,17 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				{
 					string correctTarget = target;
 
+					bool isAbsolute = StartsWith(correctTarget, "@@");
+
+					//add path relative to exe as prefix if not absolute
+					if (!isAbsolute)
+					{
 #ifdef _WIN32
-					correctTarget = ReplaceAllFromString(correctTarget, "@", "\\");
+						correctTarget = ReplaceAllFromString(correctTarget, "@", "\\");
 #else
-					correctTarget = ReplaceAllFromString(correctTarget, "@", "/");
+						correctTarget = ReplaceAllFromString(correctTarget, "@", "/");
 #endif
+					}
 
 					path fullTarget = thisPath / correctTarget;
 					if (!exists(fullTarget))
@@ -336,34 +357,33 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			}
 
 			//
-			// GET OVERWRITE STATE
+			// GET ACTION STATE
 			//
 
-			if (!hasOverwrite)
+			if (!hasAction)
 			{
-				if (!StartsWith(line, "overwrite: "))
+				if (!StartsWith(line, "action: "))
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has a missing overwrite key!",
+						"Kmf file '" + kmfFile.string() + "' has a missing action key!",
 						"READ_KMF",
 						LogType::LOG_ERROR);
 
 					return {};
 				}
 
-				string overwriteString = RemoveAllFromString(line, "overwrite: ");
-				if (overwriteString.empty())
+				string actionString = RemoveAllFromString(line, "action: ");
+				if (actionString.empty())
 				{
 					Log::Print(
-						"Kmf file '" + kmfFile.string() + "' has no assigned overwrite value!",
+						"Kmf file '" + kmfFile.string() + "' has no assigned action value!",
 						"READ_KMF",
 						LogType::LOG_ERROR);
 
 					return {};
 				}
 
-				if (overwriteString != "yes"
-					&& overwriteString != "no")
+				if (find(actionTypes.begin(), actionTypes.end(), actionString) == actionTypes.end())
 				{
 					Log::Print(
 						"Kmf file '" + kmfFile.string() + "' has an invalid overwrite value!",
@@ -373,9 +393,9 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					return {};
 				}
 
-				kmfBlock.overwrite = overwriteString == "yes";
+				kmfBlock.action = actionString;
 
-				hasOverwrite = true;
+				hasAction = true;
 			}
 
 			//
@@ -384,10 +404,10 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 
 			if (!hasOrigin
 				|| !hasTargets
-				|| !hasOverwrite)
+				|| !hasAction)
 			{
 				Log::Print(
-					"Kmf file '" + kmfFile.string() + "' is corrupt or mistyped! One or more origins, targets or overwrites are missing.",
+					"Kmf file '" + kmfFile.string() + "' is corrupt or mistyped! One or more origins, targets or actions are missing.",
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
@@ -402,10 +422,11 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 
 			kmfBlock.origin.clear();
 			kmfBlock.targets.clear();
+			kmfBlock.action.clear();
 
 			hasOrigin = false;
 			hasTargets = false;
-			hasOverwrite = false;
+			hasAction = false;
 		}
 	}
 
