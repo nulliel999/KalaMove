@@ -17,6 +17,8 @@ using KalaHeaders::Log;
 using KalaHeaders::LogType;
 using KalaHeaders::StartsWith;
 using KalaHeaders::SplitString;
+using KalaHeaders::RemoveAllFromString;
+using KalaHeaders::ReplaceAllFromString;
 
 using std::string;
 using std::string_view;
@@ -39,9 +41,11 @@ using std::filesystem::recursive_directory_iterator;
 struct KMF
 {
 	path origin{};
-	vector<string> targts{};
+	vector<path> targets{};
 	bool overwrite{};
 };
+
+static const path thisPath = current_path();
 
 constexpr string_view KMF_VERSION_NUMBER = "1.0";
 constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
@@ -199,7 +203,210 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 		// START GATHERING KTF BLOCK DATA
 		//
 
+		static bool hasOrigin{};
+		static bool hasTargets{};
+		static bool hasOverwrite{};
 
+		static struct KMF kmfBlock{};
+
+		if (!hasOrigin
+			&& !hasTargets
+			&& !hasOverwrite)
+		{
+			//
+			// GET ORIGIN PATH
+			//
+
+			if (!hasOrigin)
+			{
+				if (!StartsWith(line, "origin: "))
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has a missing origin key!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				string originPathString = RemoveAllFromString(line, "origin: ");
+				if (originPathString.empty())
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has an origin path with no assigned value!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+#ifdef _WIN32
+				originPathString = ReplaceAllFromString(originPathString, "@", "\\");
+#else
+				originPathString = ReplaceAllFromString(originPathString, "@", "/");
+#endif
+
+				path originPath = thisPath / originPathString;
+				if (!exists(originPath))
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has an origin path '" + originPathString + "' that does not exist!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				kmfBlock.origin = originPath;
+				hasOrigin = true;
+			}
+
+			//
+			// GET TARGET PATHS
+			//
+
+			if (!hasTargets)
+			{
+				if (!StartsWith(line, "target: "))
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has a missing target key!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				string targetPathsString = RemoveAllFromString(line, "target: ");
+				if (targetPathsString.empty())
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has no assigned target path values!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				vector<string> targets = SplitString(targetPathsString, ", ");
+				if (targets.empty())
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has no assigned target path values!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				for (const auto& target : targets)
+				{
+					string correctTarget = target;
+
+#ifdef _WIN32
+					correctTarget = ReplaceAllFromString(correctTarget, "@", "\\");
+#else
+					correctTarget = ReplaceAllFromString(correctTarget, "@", "/");
+#endif
+
+					path fullTarget = thisPath / correctTarget;
+					if (!exists(fullTarget))
+					{
+						Log::Print(
+							"Kmf file '" + kmfFile.string() + "' has an invalid target '" + target + "', it was skipped.",
+							"READ_KMF",
+							LogType::LOG_WARNING);
+					}
+
+					kmfBlock.targets.push_back(fullTarget);
+				}
+
+				//also ensure any values actually were moved to kmf block if invalid paths were skipped
+				if (kmfBlock.targets.empty())
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has no assigned target path values!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				hasTargets = true;
+			}
+
+			//
+			// GET OVERWRITE STATE
+			//
+
+			if (!hasOverwrite)
+			{
+				if (!StartsWith(line, "overwrite: "))
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has a missing overwrite key!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				string overwriteString = RemoveAllFromString(line, "overwrite: ");
+				if (overwriteString.empty())
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has no assigned overwrite value!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				if (overwriteString != "yes"
+					&& overwriteString != "no")
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has an invalid overwrite value!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return {};
+				}
+
+				kmfBlock.overwrite = overwriteString == "yes";
+
+				hasOverwrite = true;
+			}
+
+			//
+			// FINAL CHECKUP
+			//
+
+			if (!hasOrigin
+				|| !hasTargets
+				|| !hasOverwrite)
+			{
+				Log::Print(
+					"Kmf file '" + kmfFile.string() + "' is corrupt or mistyped! One or more origins, targets or overwrites are missing.",
+					"READ_KMF",
+					LogType::LOG_ERROR);
+
+				return {};
+			}
+
+			//
+			// PUSH TO RESULT AND CLEANUP
+			//
+
+			result.push_back(kmfBlock);
+
+			kmfBlock.origin.clear();
+			kmfBlock.targets.clear();
+
+			hasOrigin = false;
+			hasTargets = false;
+			hasOverwrite = false;
+		}
 	}
 
 	return result;
