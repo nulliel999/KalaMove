@@ -57,7 +57,7 @@ All available keys you can use in `.kmf` files.
 |--------------|-------------|
 | `origin`     | Defines the source path where content is copied from, the origin path must always exist |
 | `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist |
-| `action`     | Move, copy or force copy files to target destinations. Force copy overwrites if target exists, move always overwrites. |
+| `action`     | Move, copy or force copy files to target destinations. Force copy overwrites if target exists, move always overwrites |
 
 ### Rules
 
