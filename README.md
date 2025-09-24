@@ -65,9 +65,9 @@ All syntax rules you must follow when creating `.kmf` files.
 
 | Rule          | Description |
 |---------------|-------------|
-| Path rule     | All paths in `.kmf` files must be relative to the **KalaMove** executable |
 | Name rule     | Origin name does not need to match with target names as long as extensions match and file-file or dir-dir matches |
 | Block rule    | Each move block must contain `origin`, `target`, and `overwrite` keys, and each key must end with `: ` |
+| `@@`          | Use `@@` for absolute paths, relative path to executable is used if no `@@` was added at the front of a path |
 | `@`           | Use `@` as the directory separator to ensure cross-platform compatibility |
 | `..@`, `.@`   | Use `..@` to reference the parent directory and `.@` for the current directory |
 | `/`           | Lines starting with `/` (or multiple `/`) are treated as comments |
@@ -97,12 +97,17 @@ origin: KalaWindow@_external_shared@glm
 target: Elypso-engine@_external_shared@glm
 action: copy
 
-//parent directory example
+//absolute path example
+origin: @C:@Users@greenlaserDocuments@_cpp@KalaWindow@readme.md
+target: @C:@Users@greenlaserDocuments@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
+action: forcecopy
+
+//relative parent directory example
 origin: ..@readme.md
 target: ..@Elypso-engine@readme.md
-action: move
+action: copy
 
-//current directory example
+//relative current directory example
 origin: .@readme.md
 target: .@Elypso-engine@readme.md
 action: move
