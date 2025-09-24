@@ -41,6 +41,7 @@ namespace KalaHeaders
 	using std::filesystem::recursive_directory_iterator;
 	using std::filesystem::directory_iterator;
 
+	//Get the filename of the target (with extension)
 	inline string GetPathName(
 		const path& target,
 		string& outName)
@@ -59,6 +60,7 @@ namespace KalaHeaders
 
 		return{};
 	}
+	//Get the stem (filename without extension) of the target
 	inline string GetPathStem(
 		const path& target,
 		string& outStem)
@@ -78,6 +80,7 @@ namespace KalaHeaders
 		return{};
 	}
 
+	//Set the extension of the target
 	inline string SetPathExtension(
 		const path& target,
 		const string& newExtension,
@@ -129,6 +132,7 @@ namespace KalaHeaders
 
 		return{};
 	}
+	//Get the extension of the target
 	inline string GetPathExtension(
 		const path& target,
 		string& outExtension)
@@ -155,6 +159,7 @@ namespace KalaHeaders
 		return{};
 	}
 
+	//Get the parent directory of the target
 	inline string GetPathParent(
 		const path& target,
 		string& outParent)
@@ -288,7 +293,7 @@ namespace KalaHeaders
 		return{};
 	}
 
-	//Delete file or folder in target path
+	//Delete file or folder in target path (recursive for directories)
 	inline string DeletePath(const path& target)
 	{
 		ostringstream oss{};
@@ -317,7 +322,7 @@ namespace KalaHeaders
 		return{};
 	}
 
-	//Rename file or folder in target path
+	//Rename file or folder in its current directory
 	inline string RenamePath(
 		const path& target,
 		const string& newName)
@@ -349,7 +354,7 @@ namespace KalaHeaders
 		return{};
 	}
 
-	//Get size of target, only works for regular files
+	//Get the size of the target in bytes
 	inline string GetFileSize(
 		const path& target, 
 		uintmax_t& outSize)
@@ -445,7 +450,7 @@ namespace KalaHeaders
 
 		return{};
 	}
-	//Copy all lines from a text file into a string
+	//Read all text from a file into a string
 	inline string ReadTextFromFile(
 		const path& target, 
 		string& outText)
@@ -559,7 +564,7 @@ namespace KalaHeaders
 
 		return{};
 	}
-	//Copy all lines from a text file into a vector
+	//Read all lines from a file into a vector of strings
 	inline string ReadLinesFromFile(
 		const path& target,
 		vector<string>& outLines)
