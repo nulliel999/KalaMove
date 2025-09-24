@@ -36,25 +36,22 @@ using std::filesystem::recursive_directory_iterator;
 //Each kalamovefile block in the .kmf file
 struct KMF
 {
-	string origin{};
+	path origin{};
 	vector<string> targts{};
 	bool overwrite{};
 };
 
-vector<KMF> kmfContent{};
-static vector<string> allKMFFiles{};
-
 constexpr string_view KMF_EXTENSION = ".ktf";
 
-static vector<string> GetAllKMFFiles();
-static vector<KMF> GetAllKMFContent(const string& kmfFile);
+static vector<path> GetAllKMFFiles();
+static vector<KMF> GetAllKMFContent(path kmfFile);
 static void HandleKMFBlock(KMF kmfBlock);
 
 namespace KalaMove
 {
 	void Core::Run()
 	{
-		vector<string> kmfFiles = GetAllKMFFiles();
+		vector<path> kmfFiles = GetAllKMFFiles();
 
 		if (kmfFiles.empty())
 		{
@@ -97,12 +94,24 @@ namespace KalaMove
 	}
 }
 
-vector<string> GetAllKMFFiles()
+vector<path> GetAllKMFFiles()
 {
-	return{};
+	vector<path> result{};
+
+	for (const auto& file : directory_iterator(current_path()))
+	{
+		//only allow kmf files
+		if (is_regular_file(path(file))
+			&& path(file).extension() == ".kmf")
+		{
+			result.push_back(path(file));
+		}
+	}
+
+	return result;
 }
 
-vector<KMF> GetAllKMFContent(const string& kmfFile)
+vector<KMF> GetAllKMFContent(path kmfFile)
 {
 	return{};
 }
