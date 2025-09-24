@@ -12,17 +12,17 @@
 //kalawindow readme
 origin: KalaWindow@readme.md
 target: Circuit-chan@_external_shared@KalaWindow@readme.md, Elypso-engine@_external_shared@KalaWindow@readme.md, Elypso-hub@_external_shared@KalaWindow@readme.md
-overwrite: yes
+action: forcecopy
 
 //kalawindow license
 origin: KalaWindow@LICENSE.md
 target: Circuit-chan@_external_shared@KalaWindow@LICENSE.md, Elypso-engine@_external_shared@KalaWindow@LICENSE.md, Elypso-hub@_external_shared@KalaWindow@LICENSE.md
-overwrite: yes
+action: forcecopy
 
 //kalawindow logo
 origin: KalaWindow@logo.png
 target: Circuit-chan@_external_shared@KalaWindow@logo.png, Elypso-engine@_external_shared@KalaWindow@logo.png, Elypso-hub@_external_shared@KalaWindow@logo.png
-overwrite: yes
+action: forcecopy
 
 //
 // KALAWINDOW BINARIES
@@ -31,27 +31,27 @@ overwrite: yes
 //kalawindow debug dll
 origin: KalaWindow@debug@_KWnd03d.dll
 target: Circuit-chan@_external_shared@KalaWindow@debug@_KWnd03d.dll, Elypso-engine@_external_shared@KalaWindow@debug@_KWnd03d.dll, Elypso-hub@_external_shared@KalaWindow@debug@_KWnd03d.dll
-overwrite: yes
+action: forcecopy
 
 //kalawindow debug lib
 origin: KalaWindow@debug@_KWnd03d.lib
 target: Circuit-chan@_external_shared@KalaWindow@debug@_KWnd03d.lib, Elypso-engine@_external_shared@KalaWindow@debug@_KWnd03d.lib, Elypso-hub@_external_shared@KalaWindow@debug@_KWnd03d.lib
-overwrite: yes
+action: forcecopy
 
 //kalawindow debug pdb
 origin: KalaWindow@debug@_KWnd03d.pdb
 target: Circuit-chan@_external_shared@KalaWindow@debug@_KWnd03d.pdb, Elypso-engine@_external_shared@KalaWindow@debug@_KWnd03d.pdb, Elypso-hub@_external_shared@KalaWindow@debug@_KWnd03d.pdb
-overwrite: yes
+action: forcecopy
 
 //kalawindow release dll
 origin: KalaWindow@release@_KWnd03.dll
 target: Circuit-chan@_external_shared@KalaWindow@release@_KWnd03.dll, Elypso-engine@_external_shared@KalaWindow@release@_KWnd03.dll, Elypso-hub@_external_shared@KalaWindow@release@_KWnd03.dll
-overwrite: yes
+action: forcecopy
 
 //kalawindow release lib
 origin: KalaWindow@release@_KWnd03.lib
 target: Circuit-chan@_external_shared@KalaWindow@release@_KWnd03.lib, Elypso-engine@_external_shared@KalaWindow@release@_KWnd03.lib, Elypso-hub@_external_shared@KalaWindow@release@_KWnd03.lib
-overwrite: yes
+action: forcecopy
 
 //
 // KALAWINDOW EXTERNAL LIBRARIES
@@ -60,29 +60,29 @@ overwrite: yes
 //glm folder
 origin: KalaWindow@_external_shared@glm
 target: Circuit-chan@_external_shared@glm, Elypso-engine@_external_shared@glm, Elypso-hub@_external_shared@glm
-overwrite: no
+action: copy
 
 //imgui folder
 origin: KalaWindow@_external_shared@imgui
 target: Circuit-chan@_external_shared@imgui, Elypso-engine@_external_shared@imgui, Elypso-hub@_external_shared@imgui
-overwrite: no
+action: copy
 
 //KalaHeaders folder
 origin: KalaWindow@_external_shared@KalaHeaders
 target: Circuit-chan@_external_shared@KalaHeaders, Elypso-engine@_external_shared@KalaHeaders, Elypso-hub@_external_shared@KalaHeaders
-overwrite: yes
+action: forcecopy
 
 //miniaudio folder
 origin: KalaWindow@_external_shared@miniaudio
 target: Circuit-chan@_external_shared@miniaudio, Elypso-engine@_external_shared@miniaudio, Elypso-hub@_external_shared@miniaudio
-overwrite: no
+action: copy
 
 //OpenGL folder
 origin: KalaWindow@_external_shared@OpenGL
 target: Circuit-chan@_external_shared@OpenGL, Elypso-engine@_external_shared@OpenGL, Elypso-hub@_external_shared@OpenGL
-overwrite: no
+action: copy
 
 //stb folder
 origin: KalaWindow@_external_shared@stb
 target: Circuit-chan@_external_shared@stb, Elypso-engine@_external_shared@stb, Elypso-hub@_external_shared@stb
-overwrite: no
+action: copy

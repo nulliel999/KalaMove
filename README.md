@@ -57,7 +57,7 @@ All available keys you can use in `.kmf` files.
 |--------------|-------------|
 | `origin`     | Defines the source path where content is copied from, the origin path must always exist |
 | `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist |
-| `overwrite`  | Toggles whether existing files at the target should be overwritten (`yes` or `no`), the overwrite value must always exist |
+| `action`     | Move, copy or force copy files to target destinations. Force copy overwrites if target exists, move always overwrites. |
 
 ### Rules
 
@@ -89,20 +89,20 @@ All syntax rules you must follow when creating `.kmf` files.
 //file example
 origin: KalaWindow@readme.md
 target: Elypso-engine@_external_shared@KalaWindow@readme.md
-overwrite: yes
+action: forcecopy
 
 //folder example
 origin: KalaWindow@_external_shared@glm
 target: Elypso-engine@_external_shared@glm
-overwrite: no
+action: copy
 
 //parent directory example
 origin: ..@readme.md
 target: ..@Elypso-engine@readme.md
-overwrite: no
+action: move
 
 //current directory example
 origin: .@readme.md
 target: .@Elypso-engine@readme.md
-overwrite: no
+action: move
 ```
