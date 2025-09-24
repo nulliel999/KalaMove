@@ -28,7 +28,7 @@ All syntax rules you must follow when creating .kmf files.
 
 | Rule          | Description |
 |---------------|-------------|
-| Path rule     | All paths in .ktf files must be relative to the **KalaMove** executable |
+| Path rule     | All paths in .kmf files must be relative to the **KalaMove** executable |
 | Block rule    | Each move block must contain `origin`, `target`, and `overwrite` keys, and each key must end with `: ` |
 | `@`           | Used as the directory separator to ensure cross-platform compatibility |
 | `..@`, `.@`   | Use `..@` to reference the parent directory and `.@` for the current directory |
