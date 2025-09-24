@@ -76,7 +76,7 @@ set(CMAKE_INSTALL_BINDIR bin)
 install(TARGETS KalaMove DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Copy important files
-set(COPY_TARGETS README.md LICENSE.md MANIFEST.kmf)
+set(COPY_TARGETS README.md LICENSE.md)
 foreach(FILE ${COPY_TARGETS})
 add_custom_command(TARGET KalaMove POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove 
