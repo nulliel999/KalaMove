@@ -563,5 +563,18 @@ void HandleKMFBlock(KMF kmfBlock)
 			"Starting to " + kmfBlock.action + " origin '" + kmfBlock.origin.string() + "' to target '" + target.string() + "'.",
 			"MOVE_KMF",
 			LogType::LOG_SUCCESS);
+
+		if (kmfBlock.action == "move")
+		{
+
+		}
+		else if (kmfBlock.action == "copy")
+		{
+
+		}
+		else if (kmfBlock.action == "forcecopy")
+		{
+
+		}
 	}
 }
