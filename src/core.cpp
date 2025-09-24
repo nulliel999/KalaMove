@@ -15,6 +15,8 @@
 
 using KalaHeaders::Log;
 using KalaHeaders::LogType;
+using KalaHeaders::StartsWith;
+using KalaHeaders::SplitString;
 
 using std::string;
 using std::string_view;
@@ -41,6 +43,8 @@ struct KMF
 	bool overwrite{};
 };
 
+constexpr string_view KMF_VERSION_NUMBER = "1.0";
+constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
 constexpr string_view KMF_EXTENSION = ".ktf";
 
 static vector<path> GetAllKMFFiles();
@@ -118,7 +122,87 @@ vector<path> GetAllKMFFiles()
 
 vector<KMF> GetAllKMFContent(path kmfFile)
 {
-	return{};
+	vector<KMF> result{};
+
+	ifstream file(kmfFile);
+
+	if (!file.is_open())
+	{
+		Log::Print(
+			"Failed to read kmf file '" + kmfFile.string() + "'!",
+			"READ_KMF",
+			LogType::LOG_ERROR);
+
+		return{};
+	}
+
+	auto IsValidVersion = [](
+		const string& line,
+		path kmfFile)
+		{
+			//correct version was found
+			if (line == KMF_VERSION_NAME)
+			{
+				return true;
+			}
+
+			//found version tag but incorrect version or invalid version string was found
+			if (!StartsWith(line, "#KMF VERSION ")) return false;
+			else
+			{
+				vector<string> split = SplitString(line, " ");
+				if (split.size() != 3)
+				{
+					Log::Print(
+						"Kmf file '" + kmfFile.string() + "' has invalid version '" + line + "'!",
+						"READ_KMF",
+						LogType::LOG_ERROR);
+
+					return false;
+				}
+				else
+				{
+					if (split[2] != KMF_VERSION_NUMBER)
+					{
+						Log::Print(
+							"Kmf file '" + kmfFile.string() + "' has invalid version '" + split[2] + "'!",
+							"READ_KMF",
+							LogType::LOG_ERROR);
+
+						return false;
+					}
+				}
+			}
+
+			return true;
+		};
+
+	bool foundVersion = false;
+	string line{};
+	while (getline(file, line))
+	{
+		//skip empty and comment lines
+		if (line.empty()
+			|| StartsWith(line, "//"))
+		{
+			continue;
+		}
+
+		//version must always be at the top
+		if (!foundVersion)
+		{
+			foundVersion = IsValidVersion(line, kmfFile);
+			if (!foundVersion) return{};
+		}
+
+		//
+		// START GATHERING KTF BLOCK DATA
+		//
+
+
+	}
+
+	return result;
 }
 
 void HandleKMFBlock(KMF kmfBlock)
