@@ -64,6 +64,13 @@ static vector<path> GetAllKMFFiles();
 static vector<KMF> GetAllKMFContent(path kmfFile);
 static void HandleKMFBlock(KMF kmfBlock);
 
+static void Exit()
+{
+	Log::Print("\nPress 'Enter' to exit...");
+	cin.get();
+	quick_exit(0);
+}
+
 namespace KalaMove
 {
 	void Core::Run()
@@ -77,7 +84,7 @@ namespace KalaMove
 				"GET_KMF",
 				LogType::LOG_ERROR);
 
-			return;
+			Exit();
 		}
 
 		vector<KMF> kmfContent{};
@@ -98,16 +105,13 @@ namespace KalaMove
 				"READ_KMF",
 				LogType::LOG_ERROR);
 
-			return;
+			Exit();
 		}
 
 		for (const auto& kmf : kmfContent)
 		{
 			HandleKMFBlock(kmf);
 		}
-
-		Log::Print("\nPress 'Enter' to exit...");
-		cin.get();
 	}
 }
 
