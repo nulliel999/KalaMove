@@ -10,7 +10,7 @@
 
 The first official .kmf version is 1.0 and it is the standard format used for all current KalaKit and Lost Empire Entertainment file distribution systems.
 
-To move files with KalaMove.exe simply create a text file and set its extension to .kmf and write your content inside it. Follow the example section below to see how to use .kmf files correctly with KalaMove.exe.
+To move files with KalaMove.exe simply create a text file and set its extension to .kmf and write your content inside it. The example section at the bottom of this README shows how to write the keys and how to follow the rules.
 
 ### Core Keys
 
@@ -28,7 +28,7 @@ All syntax rules you must follow when creating .kmf files.
 
 | Rule          | Description |
 |---------------|-------------|
-| Path rule     | All paths in .ktf files have to be relative to the **KalaMove** executable |
+| Path rule     | All paths in .ktf files must be relative to the **KalaMove** executable |
 | Block rule    | Each move block must contain `origin`, `target`, and `overwrite` keys, and each key must end with `: ` |
 | `@`           | Used as the directory separator to ensure cross-platform compatibility |
 | `..@`, `.@`   | Use `..@` to reference the parent directory and `.@` for the current directory |
