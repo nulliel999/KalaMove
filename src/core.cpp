@@ -16,10 +16,7 @@
 
 using KalaHeaders::Log;
 using KalaHeaders::LogType;
-using KalaHeaders::StartsWith;
-using KalaHeaders::SplitString;
-using KalaHeaders::RemoveAllFromString;
-using KalaHeaders::ReplaceAllFromString;
+using namespace KalaHeaders;
 
 using std::string;
 using std::to_string;

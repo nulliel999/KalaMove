@@ -25,7 +25,7 @@ namespace KalaHeaders
 	using std::toupper;
 	using std::tolower;	
 
-	//Check if origin contains target with optional case sensitivity toggle
+	//Check if origin contains target, with optional case sensitivity flag
 	inline bool ContainsString(
 		const string& origin,
 		const string& target,
@@ -58,7 +58,7 @@ namespace KalaHeaders
 		return it != origin.end();
 	}
 
-	//Check if origin is the same as target with optional case sensitivity toggle
+	//Check if origin is the same as target, with optional case sensitivity flag
 	inline bool CompareStrings(
 		const string& origin,
 		const string& target,
