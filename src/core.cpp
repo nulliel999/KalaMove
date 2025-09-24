@@ -57,7 +57,7 @@ namespace KalaMove
 		{
 			Log::Print(
 				"Did not find any .kmf files. There is nothing to copy.",
-				"KMF",
+				"GET_KMF",
 				LogType::LOG_ERROR);
 
 			return;
@@ -78,7 +78,7 @@ namespace KalaMove
 		{
 			Log::Print(
 				"Did not find any kmf content. There is nothing to copy.",
-				"KMF",
+				"READ_KMF",
 				LogType::LOG_ERROR);
 
 			return;
@@ -104,6 +104,11 @@ vector<path> GetAllKMFFiles()
 		if (is_regular_file(path(file))
 			&& path(file).extension() == ".kmf")
 		{
+			Log::Print(
+				"Found valid .kmf file '" + path(file).filename().string() + "'!",
+				"GET_KMF",
+				LogType::LOG_SUCCESS);
+
 			result.push_back(path(file));
 		}
 	}
