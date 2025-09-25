@@ -97,8 +97,8 @@ target: Elypso-engine@_external_shared@glm
 action: copy
 
 //absolute path example
-origin: @C:@Users@greenlaser@Documents@_cpp@KalaWindow@readme.md
-target: @C:@Users@greenlaser@Documents@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
+origin: @@C:@Users@greenlaser@Documents@_cpp@KalaWindow@readme.md
+target: @@C:@Users@greenlaser@Documents@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
 action: forcecopy
 
 //relative parent directory example
