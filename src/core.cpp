@@ -268,15 +268,18 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				kmfFile.string(),
 				lineNumber);
 
-			if (isLastLine)
-			{
-				result.push_back(kmfBlock);
-				ClearContent();
-			}
-
 			if (!foundVersion)
 			{
-				ClearContent();
+				return{};
+			}
+
+			if (isLastLine)
+			{
+				Log::Print(
+					"Kmf file '" + kmfFile.stem().string() + "' has no content after line '" + to_string(lineNumber) + "'!",
+					"READ_KMF",
+					LogType::LOG_ERROR);
+
 				return{};
 			}
 
@@ -303,8 +306,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -316,8 +317,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -346,8 +345,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -381,8 +378,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -394,8 +389,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -407,8 +400,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -495,8 +486,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -524,8 +513,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -537,8 +524,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
@@ -549,13 +534,14 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) result.push_back(kmfBlock);
-				ClearContent();
 				return {};
 			}
 
 			kmfBlock.action = actionString;
 			hasAction = true;
+
+			result.push_back(kmfBlock);
+			ClearContent();
 
 			Log::Print(
 				"Kmf file '" + kmfFile.stem().string() + "' has a correct action '" + actionString + "' at line '" + to_string(lineNumber) + "'.",
@@ -571,9 +557,6 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			"READ_KMF",
 			LogType::LOG_ERROR);
 
-		result.push_back(kmfBlock);
-		ClearContent();
-
 		return{};
 	}
 
@@ -584,12 +567,9 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			string targetLine = to_string(kmf.line + 1);
 
 			Log::Print(
-				"Kmf file '" + kmfFile.string() + "' is has no assigned valid targets at line '" + targetLine + "'!",
+				"Kmf file '" + kmfFile.string() + "' has no assigned valid targets at line '" + targetLine + "'!",
 				"READ_KMF",
 				LogType::LOG_ERROR);
-
-			result.push_back(kmfBlock);
-			ClearContent();
 
 			return{};
 		}
@@ -599,19 +579,13 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			string targetLine = to_string(kmf.line + 2);
 
 			Log::Print(
-				"Kmf file '" + kmfFile.string() + "' is has no assigned action at line '" + targetLine + "'!",
+				"Kmf file '" + kmfFile.string() + "' has no assigned action at line '" + targetLine + "'!",
 				"READ_KMF",
 				LogType::LOG_ERROR);
-
-			result.push_back(kmfBlock);
-			ClearContent();
 
 			return{};
 		}
 	}
-
-	result.push_back(kmfBlock);
-	ClearContent();
 
 	return result;
 }
@@ -627,6 +601,20 @@ void HandleKMFBlock(KMF kmfBlock)
 	{
 		if (kmfBlock.action == "copy")
 		{
+			ostringstream success{};
+
+			if (exists(target))
+			{
+				success << "Skipped copying to target '" << target << "' because it already exists.";
+
+				Log::Print(
+					success.str(),
+					"HANDLE_KMF",
+					LogType::LOG_SUCCESS);
+
+				continue;
+			}
+
 			string result = CopyPath(
 				kmfBlock.origin,
 				target);
@@ -641,7 +629,6 @@ void HandleKMFBlock(KMF kmfBlock)
 				return;
 			}
 
-			ostringstream success{};
 			success << "Copied origin '" << kmfBlock.origin << "' to target '" << target << ".";
 
 			Log::Print(
