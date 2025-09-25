@@ -7,9 +7,9 @@
 
 using KalaMove::Core;
 
-int main()
+int main(int argc, char* argv[])
 {
-	Core::Run();
+	Core::Run(argc, argv);
 	
 	return 0;
 }

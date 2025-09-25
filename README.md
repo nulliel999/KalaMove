@@ -47,7 +47,16 @@ Traditional installers (NSIS, Inno Setup, MSI, etc.) are often **overkill** if y
 
 ## How to use 
 
-To move files with **KalaMove** simply create a text file in the same directory as the executable and set its extension to `.kmf` and write your content inside it. The example section at the bottom of this **README** file shows how to write a simple `.kmf` file.
+To handle files with **KalaMove** simply create a text file in the same directory as the executable and set its extension to `.kmf` and write your content inside it. The example section at the bottom of this **README** file shows how to write a simple `.kmf` file.
+
+### Run types
+
+You can run **KalaMove** manually or from your console. by running its executable manually which gets `.kmf` files from the same folder as the exe itself is at, or by passing `.kmf` paths to **KalaMove** executable from your console as parameters.
+
+| Key          | Description |
+|--------------|-------------|
+| `manual`     | Picks up all `.kmf` files from the same folder where the exe is run |
+| `console`    | Accepts `.kmf` file paths as parameters from the console, allowing you to run them from outside the exe folder |
 
 ### Core Keys
 
@@ -57,9 +66,21 @@ All available keys you can use in `.kmf` files.
 |--------------|-------------|
 | `origin`     | Defines the source path where content is copied from, the origin path must always exist |
 | `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist |
-| `action`     | Move, copy or force copy files to target destinations. Force copy overwrites if target exists, move always overwrites |
+| `action`     | Move, copy, force copy, rename or delete files. Force copy overwrites if target exists, move always overwrites |
 
-### Rules
+### Action types
+
+All available action types you can use for the action keyword.
+
+| Action      | Description |
+|-------------|-------------|
+| `copy`      | Copy origin to target path(s), skip if target exists |
+| `forcecopy` | Copy origin to target path(s), overwrite if target exists |
+| `move`      | Force copy origin to all targets except last, then move origin to last target |
+| `rename`    | Rename each target to use origin’s stem, origin must be a valid path |
+| `delete`    | Delete all target paths, origin is validated but not used |
+
+### Syntax rules
 
 All syntax rules you must follow when creating `.kmf` files.
 
@@ -89,7 +110,7 @@ All syntax rules you must follow when creating `.kmf` files.
 //file example
 origin: KalaWindow@readme.md
 target: Elypso-engine@_external_shared@KalaWindow@readme.md
-action: forcecopy
+action: copy
 
 //folder example
 origin: KalaWindow@_external_shared@glm
@@ -99,7 +120,7 @@ action: copy
 //absolute path example
 origin: @@C:@Users@greenlaser@Documents@_cpp@KalaWindow@readme.md
 target: @@C:@Users@greenlaser@Documents@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
-action: forcecopy
+action: copy
 
 //relative parent directory example
 origin: ..@readme.md
@@ -109,5 +130,5 @@ action: copy
 //relative current directory example
 origin: .@readme.md
 target: .@Elypso-engine@readme.md
-action: move
+action: copy
 ```

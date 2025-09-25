@@ -53,14 +53,16 @@ constexpr string_view KMF_VERSION_NUMBER = "1.0";
 constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
 constexpr string_view KMF_EXTENSION = ".ktf";
 
-static const array<string, 3> actionTypes =
+static const array<string, 5> actionTypes =
 {
-	"move",    //move file to first target and overwrite, forcecopy to all other targets
-	"copy",    //copy file to target only if target does not already have this file
-	"fullcopy" //copy file to target and overwrite
+	"move",      //force copy file or folder to all paths except last, move to last
+	"copy",      //copy file or folder to target only if target does not already have this file
+	"forcecopy", //copy file or folder to target and overwrite
+	"rename",    //rename file or folder in local dir
+	"delete"     //delete file or folder
 };
 
-static vector<path> GetAllKMFFiles();
+static bool IsValidKMFPath(path kmfPath);
 static vector<KMF> GetAllKMFContent(path kmfFile);
 static void HandleKMFBlock(KMF kmfBlock);
 
@@ -73,7 +75,7 @@ static void Exit()
 
 namespace KalaMove
 {
-	void Core::Run()
+	void Core::Run(int argc, char* argv[])
 	{
 		ostringstream oss{};
 
@@ -83,7 +85,26 @@ namespace KalaMove
 
 		Log::Print(oss.str());
 
-		vector<path> kmfFiles = GetAllKMFFiles();
+		vector<path> kmfFiles{};
+
+		if (argc == 1)
+		{
+			for (const auto& file : directory_iterator(current_path()))
+			{
+				path kmfPath = file;
+
+				if (IsValidKMFPath(kmfPath)) kmfFiles.push_back(kmfPath);
+			}
+		}
+		else
+		{
+			for (int i = 1; i < argc; ++i)
+			{
+				path kmfPath = argv[i];
+
+				if (IsValidKMFPath(kmfPath)) kmfFiles.push_back(kmfPath);
+			}
+		}
 
 		if (kmfFiles.empty())
 		{
@@ -125,26 +146,46 @@ namespace KalaMove
 	}
 }
 
-vector<path> GetAllKMFFiles()
+bool IsValidKMFPath(path kmfPath)
 {
-	vector<path> result{};
-
-	for (const auto& file : directory_iterator(current_path()))
+	if (!exists(kmfPath))
 	{
-		//only allow kmf files
-		if (is_regular_file(path(file))
-			&& path(file).extension() == ".kmf")
-		{
-			Log::Print(
-				"Found valid .kmf file '" + path(file).filename().string() + "'!",
-				"GET_KMF",
-				LogType::LOG_SUCCESS);
+		Log::Print(
+			"User-passed kmf file path '" + kmfPath.string() + "' does not exist! Skipping...",
+			"GET_KMF",
+			LogType::LOG_WARNING);
 
-			result.push_back(path(file));
-		}
+		return false;
+	}
+	if (!is_regular_file(kmfPath))
+	{
+		Log::Print(
+			"User-passed kmf file path '" + kmfPath.string() + "' is not a file! Skipping...",
+			"GET_KMF",
+			LogType::LOG_WARNING);
+
+		return false;
+	}
+	if (!kmfPath.has_extension())
+	{
+		Log::Print(
+			"User-passed kmf file path '" + kmfPath.string() + "' does not have an extension! Skipping...",
+			"GET_KMF",
+			LogType::LOG_WARNING);
+
+		return false;
+	}
+	if (kmfPath.extension() != ".kmf")
+	{
+		Log::Print(
+			"User-passed kmf file path '" + kmfPath.string() + "' does not have the correct extension! Skipping...",
+			"GET_KMF",
+			LogType::LOG_WARNING);
+
+		return false;
 	}
 
-	return result;
+	return true;
 }
 
 vector<KMF> GetAllKMFContent(path kmfFile)
@@ -555,24 +596,152 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 
 void HandleKMFBlock(KMF kmfBlock)
 {
+	Log::Print(
+		"Started with action '" + kmfBlock.action + "' for origin '" + kmfBlock.origin.string() + "'.",
+		"HANDLE_KMF",
+		LogType::LOG_DEBUG);
+
 	for (const auto& target : kmfBlock.targets)
 	{
-		Log::Print(
-			"Starting to " + kmfBlock.action + " origin '" + kmfBlock.origin.string() + "' to target '" + target.string() + "'.",
-			"MOVE_KMF",
-			LogType::LOG_SUCCESS);
-
-		if (kmfBlock.action == "move")
+		if (kmfBlock.action == "copy")
 		{
+			string result = CopyPath(
+				kmfBlock.origin,
+				target);
 
-		}
-		else if (kmfBlock.action == "copy")
-		{
+			if (!result.empty())
+			{
+				Log::Print(
+					result,
+					"HANDLE_KMF",
+					LogType::LOG_ERROR);
 
+				return;
+			}
+
+			ostringstream success{};
+			success << "Copied origin '" << kmfBlock.origin << "' to target '" << target << ".";
+
+			Log::Print(
+				success.str(),
+				"HANDLE_KMF",
+				LogType::LOG_SUCCESS);
 		}
 		else if (kmfBlock.action == "forcecopy")
 		{
+			string result = CopyPath(
+				kmfBlock.origin,
+				target,
+				true);
 
+			if (!result.empty())
+			{
+				Log::Print(
+					result,
+					"HANDLE_KMF",
+					LogType::LOG_ERROR);
+
+				return;
+			}
+
+			ostringstream success{};
+			success << "Force copied origin '" << kmfBlock.origin << "' to target '" << target << ".";
+
+			Log::Print(
+				success.str(),
+				"HANDLE_KMF",
+				LogType::LOG_SUCCESS);
+		}
+		else if (kmfBlock.action == "move")
+		{
+			if (target != kmfBlock.targets.back())
+			{
+				string result = CopyPath(
+					kmfBlock.origin,
+					target,
+					true);
+
+				if (!result.empty())
+				{
+					Log::Print(
+						result,
+						"HANDLE_KMF",
+						LogType::LOG_ERROR);
+
+					return;
+				}
+			}
+			else
+			{
+				string result = MovePath(
+					kmfBlock.origin,
+					target);
+
+				if (!result.empty())
+				{
+					Log::Print(
+						result,
+						"HANDLE_KMF",
+						LogType::LOG_ERROR);
+
+					return;
+				}
+			}
+
+			ostringstream success{};
+			success << "Moved origin '" << kmfBlock.origin << "' to target '" << target << ".";
+
+			Log::Print(
+				success.str(),
+				"HANDLE_KMF",
+				LogType::LOG_SUCCESS);
+		}
+		else if (kmfBlock.action == "rename")
+		{
+			string result = RenamePath(
+				target,
+				kmfBlock.origin.stem().string());
+
+			if (!result.empty())
+			{
+				Log::Print(
+					result,
+					"HANDLE_KMF",
+					LogType::LOG_ERROR);
+
+				return;
+			}
+
+			ostringstream success{};
+			success << "Renamed origin '" << target << "' to '" << kmfBlock.origin.stem() << ".";
+
+			Log::Print(
+				success.str(),
+				"HANDLE_KMF",
+				LogType::LOG_SUCCESS);
+		}
+		else if (kmfBlock.action == "delete")
+		{
+			string result = DeletePath(
+				target);
+
+			if (!result.empty())
+			{
+				Log::Print(
+					result,
+					"HANDLE_KMF",
+					LogType::LOG_ERROR);
+
+				return;
+			}
+
+			ostringstream success{};
+			success << "Deleted target '" << target << "'.";
+
+			Log::Print(
+				success.str(),
+				"HANDLE_KMF",
+				LogType::LOG_SUCCESS);
 		}
 	}
 }

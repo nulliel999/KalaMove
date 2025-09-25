@@ -12,6 +12,6 @@ namespace KalaMove
 	public:
 		//Ensures all paths we need to copy from and to are valid
 		//and handles copying all files to relevant paths
-		static void Run();
+		static void Run(int argc, char* argv[]);
 	};
 }
