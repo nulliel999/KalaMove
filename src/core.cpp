@@ -11,8 +11,9 @@
 #include <filesystem>
 
 #include "core.hpp"
-#include "external/logging.hpp"
-#include "external/string_helpers.hpp"
+#include "external/log_utils.hpp"
+#include "external/string_utils.hpp"
+#include "external/file_utils.hpp"
 
 using KalaHeaders::Log;
 using KalaHeaders::LogType;
