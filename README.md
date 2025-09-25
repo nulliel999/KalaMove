@@ -8,7 +8,7 @@
 |----------------------------|-------------|
 | **Strict & Repeatable**    | Every `.kmf` file follows the same format with strict rules. No surprises, no “works on my machine” problems - execution is always consistent. |
 | **Cross-Platform by Design** | A single `.kmf` manifest works on both **Windows** and **Linux**, thanks to the OS-agnostic `@` separator. |
-| **Readable & Maintainable** | `.kmf` files are plain text with human-friendly keys like `origin`, `target`, and `overwrite`. No need to debug fragile scripts. |
+| **Readable & Maintainable** | `.kmf` files are plain text with human-friendly keys like `origin`, `target`, and `action`. No need to debug fragile scripts. |
 | **Multiple Targets**       | A single `origin` can copy to multiple `target` locations in one block — something most batch/shell/CMake setups handle poorly. |
 | **Safe by Default**        | Invalid origins immediately stop execution, preventing data loss. Invalid targets are skipped safely without halting everything. |
 
