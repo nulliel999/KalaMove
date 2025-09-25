@@ -53,13 +53,14 @@ constexpr string_view KMF_VERSION_NUMBER = "1.0";
 constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
 constexpr string_view KMF_EXTENSION = ".ktf";
 
-static const array<string, 5> actionTypes =
+static const array<string, 6> actionTypes =
 {
 	"move",      //force copy file or folder to all paths except last, move to last
 	"copy",      //copy file or folder to target only if target does not already have this file
 	"forcecopy", //copy file or folder to target and overwrite
 	"rename",    //rename file or folder in local dir
-	"delete"     //delete file or folder
+	"delete",    //delete file or folder
+	"create"     //create new directory
 };
 
 static vector<KMF> GetAllKMFContent(path kmfFile);
@@ -235,10 +236,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			return true;
 		};
 
-	auto StoreContent = [&]()
+	auto ClearContent = [&]()
 		{
-			result.push_back(kmfBlock);
-
 			kmfBlock.origin.clear();
 			kmfBlock.targets.clear();
 			kmfBlock.action.clear();
@@ -269,9 +268,17 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				kmfFile.string(),
 				lineNumber);
 
-			if (isLastLine) StoreContent();
+			if (isLastLine)
+			{
+				result.push_back(kmfBlock);
+				ClearContent();
+			}
 
-			if (!foundVersion) return{};
+			if (!foundVersion)
+			{
+				ClearContent();
+				return{};
+			}
 
 			Log::Print(
 				"Kmf file '" + kmfFile.stem().string() + "' has a correct version '" + line + "' at line '" + to_string(lineNumber) + "'.",
@@ -296,7 +303,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -308,23 +316,29 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
 			bool isAbsolute = StartsWith(originPathString, "@@");
 
+			path originPath{};
+
 			//add path relative to exe as prefix if not absolute
-			if (!isAbsolute)
+			if (!isAbsolute) originPath = thisPath / originPathString;
+			else
 			{
-#ifdef _WIN32
-				originPathString = ReplaceAllFromString(originPathString, "@", "\\");
-#else
-				originPathString = ReplaceAllFromString(originPathString, "@", "/");
-#endif
+				originPathString = ReplaceAllFromString(originPathString, "@@", "");
+				originPath = originPathString;
 			}
 
-			path originPath = thisPath / originPathString;
+#ifdef _WIN32
+			originPath = ReplaceAllFromString(originPath.string(), "@", "\\");
+#else
+			originPath = ReplaceAllFromString(originPath.string(), "@", "/");
+#endif
+
 			if (!exists(originPath))
 			{
 				Log::Print(
@@ -332,7 +346,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -344,7 +359,12 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			kmfBlock.origin = originPath;
 			hasOrigin = true;
 
-			if (isLastLine) StoreContent();
+			if (isLastLine)
+			{
+				result.push_back(kmfBlock);
+				ClearContent();
+			}
+
 			continue;
 		}
 
@@ -361,7 +381,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -373,7 +394,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -385,7 +407,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -395,17 +418,22 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 
 				bool isAbsolute = StartsWith(correctTarget, "@@");
 
+				path fullTarget{};
+
 				//add path relative to exe as prefix if not absolute
-				if (!isAbsolute)
+				if (!isAbsolute) fullTarget = thisPath / correctTarget;
+				else
 				{
-#ifdef _WIN32
-					correctTarget = ReplaceAllFromString(correctTarget, "@", "\\");
-#else
-					correctTarget = ReplaceAllFromString(correctTarget, "@", "/");
-#endif
+					correctTarget = ReplaceAllFromString(correctTarget, "@@", "");
+					fullTarget = correctTarget;
 				}
 
-				path fullTarget = thisPath / correctTarget;
+#ifdef _WIN32
+				fullTarget = ReplaceAllFromString(fullTarget.string(), "@", "\\");
+#else
+				fullTarget = ReplaceAllFromString(fullTarget.string(), "@", "/");
+#endif
+
 				if (kmfBlock.origin == fullTarget)
 				{
 					Log::Print(
@@ -467,13 +495,19 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
 			hasTargets = true;
 
-			if (isLastLine) StoreContent();
+			if (isLastLine)
+			{
+				result.push_back(kmfBlock);
+				ClearContent();
+			}
+			
 			continue;
 		}
 
@@ -490,7 +524,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -502,7 +537,8 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
@@ -513,14 +549,13 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
-				if (isLastLine) StoreContent();
+				if (isLastLine) result.push_back(kmfBlock);
+				ClearContent();
 				return {};
 			}
 
 			kmfBlock.action = actionString;
 			hasAction = true;
-
-			StoreContent();
 
 			Log::Print(
 				"Kmf file '" + kmfFile.stem().string() + "' has a correct action '" + actionString + "' at line '" + to_string(lineNumber) + "'.",
@@ -536,6 +571,9 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			"READ_KMF",
 			LogType::LOG_ERROR);
 
+		result.push_back(kmfBlock);
+		ClearContent();
+
 		return{};
 	}
 
@@ -550,6 +588,9 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				"READ_KMF",
 				LogType::LOG_ERROR);
 
+			result.push_back(kmfBlock);
+			ClearContent();
+
 			return{};
 		}
 
@@ -562,9 +603,15 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 				"READ_KMF",
 				LogType::LOG_ERROR);
 
+			result.push_back(kmfBlock);
+			ClearContent();
+
 			return{};
 		}
 	}
+
+	result.push_back(kmfBlock);
+	ClearContent();
 
 	return result;
 }
@@ -712,6 +759,29 @@ void HandleKMFBlock(KMF kmfBlock)
 
 			ostringstream success{};
 			success << "Deleted target '" << target << "'.";
+
+			Log::Print(
+				success.str(),
+				"HANDLE_KMF",
+				LogType::LOG_SUCCESS);
+		}
+		else if (kmfBlock.action == "create")
+		{
+			string result = CreateDirectory(
+				target);
+
+			if (!result.empty())
+			{
+				Log::Print(
+					result,
+					"HANDLE_KMF",
+					LogType::LOG_ERROR);
+
+				return;
+			}
+
+			ostringstream success{};
+			success << "Created new target '" << target << "'.";
 
 			Log::Print(
 				success.str(),
