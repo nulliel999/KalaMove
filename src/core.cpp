@@ -47,7 +47,7 @@ struct KMF
 	string action{};
 };
 
-static const path thisPath = current_path();
+static path thisPath{};
 
 constexpr string_view KMF_VERSION_NUMBER = "1.0";
 constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
@@ -167,6 +167,8 @@ namespace KalaMove
 vector<KMF> GetAllKMFContent(path kmfFile)
 {
 	vector<KMF> result{};
+
+	thisPath = kmfFile.parent_path();
 
 	bool foundVersion = false;
 	string line{};

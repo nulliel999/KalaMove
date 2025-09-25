@@ -47,7 +47,7 @@ Traditional installers (NSIS, Inno Setup, MSI, etc.) are often **overkill** if y
 
 ## How to use 
 
-To handle files with **KalaMove** simply create a text file in the same directory as the executable and set its extension to `.kmf` and write your content inside it. The example section at the bottom of this **README** file shows how to write a simple `.kmf` file.
+To handle files with **KalaMove** simply create a text file in the same directory as the executable and set its extension to `.kmf` and write your content inside it. The example section at the bottom of this **README** file shows how to write a simple `.kmf` file. All relative paths are built internally relative to their `.kmf` file.
 
 ### Run types
 
