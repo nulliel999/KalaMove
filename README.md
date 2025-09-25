@@ -66,7 +66,7 @@ All available keys you can use in `.kmf` files.
 |--------------|-------------|
 | `origin`     | Defines the source path where content is copied from, the origin path must always exist |
 | `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist |
-| `action`     | Move, copy, force copy, rename or delete files. Force copy overwrites if target exists, move always overwrites |
+| `action`     | Handle origin and target paths with chosen action type |
 
 ### Action types
 
@@ -79,6 +79,7 @@ All available action types you can use for the action keyword.
 | `move`      | Force copy origin to all targets except last, then move origin to last target |
 | `rename`    | Rename each target to use origin’s stem, origin must be a valid path |
 | `delete`    | Delete all target paths, origin is validated but not used |
+| `create`    | Create a new directory at chosen target paths, origin is validated but not used |
 
 ### Syntax rules
 
