@@ -1,6 +1,6 @@
 # KalaMove
 
-**KalaMove** is an executable that uses `.kmf` files that are designed as a lightweight, strict, and repeatable alternative to batch/shell scripts, CMake commands, or even full installers when all you need is reliable file movement. **KalaMove** is natively supported on **Windows** and **Linux** because it mostly uses C++ standard libraries and no OS-specific libraries. Only two external libraries are used and they can be found in `/include/external`.
+**KalaMove** is an executable that uses `.kmf` files that are designed as a lightweight, strict, and repeatable alternative to batch/shell scripts, CMake commands, or even full installers when all you need is reliable file movement. **KalaMove** is natively supported on **Windows** and **Linux** because it mostly uses C++ standard libraries and no OS-specific libraries. Only three external headers from [KalaHeaders](https://github.com/kalakit/kalaheaders) are used and they can be found in `/include/external`.
 
 ### Why `.kmf` over scripting?  
 
