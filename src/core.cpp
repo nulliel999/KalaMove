@@ -62,7 +62,6 @@ static const array<string, 5> actionTypes =
 	"delete"     //delete file or folder
 };
 
-static bool IsValidKMFPath(path kmfPath);
 static vector<KMF> GetAllKMFContent(path kmfFile);
 static void HandleKMFBlock(KMF kmfBlock);
 
@@ -87,8 +86,17 @@ namespace KalaMove
 
 		vector<path> kmfFiles{};
 
+		auto IsValidKMFPath = [](path kmfPath)
+			{
+				return
+					is_regular_file(kmfPath)
+					&& kmfPath.extension() == ".kmf";
+			};
+
 		if (argc == 1)
 		{
+			Log::Print("--- Running in MANUAL mode ---\n");
+
 			for (const auto& file : directory_iterator(current_path()))
 			{
 				path kmfPath = file;
@@ -98,6 +106,8 @@ namespace KalaMove
 		}
 		else
 		{
+			Log::Print("--- Running in PARAM mode ---\n");
+
 			for (int i = 1; i < argc; ++i)
 			{
 				path kmfPath = argv[i];
@@ -114,6 +124,13 @@ namespace KalaMove
 				LogType::LOG_ERROR);
 
 			Exit();
+		}
+		else
+		{
+			Log::Print(
+				"\nFound '" + to_string(kmfFiles.size()) + "' .kmf files.\n",
+				"GET_KMF",
+				LogType::LOG_INFO);
 		}
 
 		vector<KMF> kmfContent{};
@@ -144,48 +161,6 @@ namespace KalaMove
 
 		Exit();
 	}
-}
-
-bool IsValidKMFPath(path kmfPath)
-{
-	if (!exists(kmfPath))
-	{
-		Log::Print(
-			"User-passed kmf file path '" + kmfPath.string() + "' does not exist! Skipping...",
-			"GET_KMF",
-			LogType::LOG_WARNING);
-
-		return false;
-	}
-	if (!is_regular_file(kmfPath))
-	{
-		Log::Print(
-			"User-passed kmf file path '" + kmfPath.string() + "' is not a file! Skipping...",
-			"GET_KMF",
-			LogType::LOG_WARNING);
-
-		return false;
-	}
-	if (!kmfPath.has_extension())
-	{
-		Log::Print(
-			"User-passed kmf file path '" + kmfPath.string() + "' does not have an extension! Skipping...",
-			"GET_KMF",
-			LogType::LOG_WARNING);
-
-		return false;
-	}
-	if (kmfPath.extension() != ".kmf")
-	{
-		Log::Print(
-			"User-passed kmf file path '" + kmfPath.string() + "' does not have the correct extension! Skipping...",
-			"GET_KMF",
-			LogType::LOG_WARNING);
-
-		return false;
-	}
-
-	return true;
 }
 
 vector<KMF> GetAllKMFContent(path kmfFile)
