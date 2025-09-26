@@ -278,7 +278,7 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			if (isLastLine)
 			{
 				Log::Print(
-					"Kmf file '" + kmfFile.stem().string() + "' has no content after line '" + to_string(lineNumber) + "'!",
+					"Kmf file '" + kmfFile.string() + "' has no content after line '" + to_string(lineNumber) + "'!",
 					"READ_KMF",
 					LogType::LOG_ERROR);
 
