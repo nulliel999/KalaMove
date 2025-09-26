@@ -74,7 +74,7 @@ The purpose of this key is to be able to print log messages to KalaMove for debu
 
 - print keys only accept a single value - all content after 'print: ' is what is actually printed to KalaMove output
 - print keys accept tokens and can print the value of a token, the token must be defined before the print key
-- print keys can be placed anywhere and are printed at the parse stage where the print key was placed relative to the kmf file
+- print keys can be placed anywhere and are saved to the equivalent block where the print key was placed above, then its ran in the handle stage
 
 --- 
 
@@ -84,4 +84,4 @@ The purpose of this key is to be able to run external batch/shell/powershell scr
 
 - run keys only accept a single value - the path to the script file
 - run keys dont accept extensions so that the key can remain os-agnostic and run the same way on both windows and linux, instead the parser checks internally if the value leads to a batch or shell script and then runs that
-- run keys can be placed anywhere and are ran at the parse stage where the run key was placed relative to the kmf file
+- run keys can be placed anywhere and are saved to the equivalent block where the run key was placed above, then its ran in the handle stage
