@@ -6,6 +6,12 @@ The goal for these is to reduce repetition, expand feature sets while keeping sy
 
 ---
 
+## Save empty kmf blocks
+
+KalaMove 1.0 and 1.1 bail out early when a bad kmf block is detected at parse time, this is bad if a bad block is detected in the middle of your kmf file. The goal in 2.0 is to fix this by allowing empty key values but simply skip those in handle stage, and if a path is invalid then we save as empty so it doesnt break stuff
+
+---
+
 ## Token key
 
 The purpose of this key is to be able to avoid retyping paths for each origin or target part that is reused
@@ -74,8 +80,8 @@ The purpose of this key is to be able to print log messages to KalaMove for debu
 
 ## Run key
 
-The purpose of this key is to be able to run external batch/shell scripts when you need to do an action in between a stage
+The purpose of this key is to be able to run external batch/shell/powershell scripts when you need to do an action in between a stage
 
-- run keys only accept a single value - the path to the batch/shell script
+- run keys only accept a single value - the path to the script file
 - run keys dont accept extensions so that the key can remain os-agnostic and run the same way on both windows and linux, instead the parser checks internally if the value leads to a batch or shell script and then runs that
 - run keys can be placed anywhere and are ran at the parse stage where the run key was placed relative to the kmf file
