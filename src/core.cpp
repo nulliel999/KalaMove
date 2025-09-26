@@ -49,6 +49,7 @@ struct KMF
 
 static path thisPath{};
 
+constexpr string_view EXE_VERSION_NUMBER = "1.1";
 constexpr string_view KMF_VERSION_NUMBER = "1.0";
 constexpr string_view KMF_VERSION_NAME = "#KMF VERSION 1.0";
 constexpr string_view KMF_EXTENSION = ".ktf";
@@ -68,7 +69,11 @@ static void HandleKMFBlock(KMF kmfBlock);
 
 static void Exit()
 {
-	Log::Print("\nPress 'Enter' to exit...");
+	ostringstream out{};
+	out << "\n==========================================================================================\n";
+	Log::Print(out.str());
+
+	Log::Print("Press 'Enter' to exit...");
 	cin.get();
 	quick_exit(0);
 }
@@ -77,13 +82,25 @@ namespace KalaMove
 {
 	void Core::Run(int argc, char* argv[])
 	{
-		ostringstream oss{};
+		ostringstream banner{};
 
-		oss << "==============================\n"
-			<< "== KALAMOVE 1.0\n"
-			<< "==============================\n";
+		banner << "\n==========================================================================================\n\n"
+			   << " / $$  / $$ / $$$$$$ / $$       / $$$$$$ / $$     / $$ / $$$$$$ / $$  / $$ /$$$$$$$$    \n"
+			   << "| $$  /$$/ /$$__  $$| $$       /$$__  $$| $$$    /$$$ /$$__  $$| $$   | $$| $$_____/    \n"
+			   << "| $$ /$$/ | $$  \\ $$| $$      | $$  \\ $$| $$$$  /$$$$| $$  \\ $$| $$   | $$| $$       \n"
+			   << "| $$$$$/  | $$$$$$$$| $$      | $$$$$$$$| $$ $$/$$ $$| $$  | $$|  $$ / $$/| $$$$$       \n"
+			   << "| $$  $$  | $$__  $$| $$      | $$__  $$| $$  $$$| $$| $$  | $$ \\  $$ $$/ | $$__/      \n"
+			   << "| $$\\  $$ | $$  | $$| $$      | $$  | $$| $$\\  $ | $$| $$  | $$  \\  $$$/  | $$       \n"
+			   << "| $$ \\  $$| $$  | $$| $$$$$$$$| $$  | $$| $$ \\/  | $$|  $$$$$$/   \\  $/   | $$$$$$$$ \n"
+			   << "|__/  \\__/|__/  |__/|________/|__/  |__/|__/     |__/ \\______/     \\_/    |________/ \n";
 
-		Log::Print(oss.str());
+		Log::Print(banner.str());
+
+		ostringstream details{};
+
+		details 
+			<< "     | exe version: " << EXE_VERSION_NUMBER.data() << "\n"
+			<< "     | kmf version: " << KMF_VERSION_NUMBER.data() << "\n";
 
 		vector<path> kmfFiles{};
 
@@ -96,7 +113,7 @@ namespace KalaMove
 
 		if (argc == 1)
 		{
-			Log::Print("--- Running in MANUAL mode ---\n");
+			details << "     | run mode:    manual\n";
 
 			for (const auto& file : directory_iterator(current_path()))
 			{
@@ -107,7 +124,7 @@ namespace KalaMove
 		}
 		else
 		{
-			Log::Print("--- Running in PARAM mode ---\n");
+			details << "     | run mode:    param\n";
 
 			for (int i = 1; i < argc; ++i)
 			{
@@ -117,6 +134,10 @@ namespace KalaMove
 			}
 		}
 
+		details << "     | found files: " << kmfFiles.size() << "\n";
+		details << "\n==========================================================================================\n";
+		Log::Print(details.str());
+
 		if (kmfFiles.empty())
 		{
 			Log::Print(
@@ -125,13 +146,6 @@ namespace KalaMove
 				LogType::LOG_ERROR);
 
 			Exit();
-		}
-		else
-		{
-			Log::Print(
-				"\nFound '" + to_string(kmfFiles.size()) + "' .kmf files.\n",
-				"GET_KMF",
-				LogType::LOG_INFO);
 		}
 
 		vector<KMF> kmfContent{};
@@ -286,9 +300,9 @@ vector<KMF> GetAllKMFContent(path kmfFile)
 			}
 
 			Log::Print(
-				"Kmf file '" + kmfFile.stem().string() + "' has a correct version '" + line + "' at line '" + to_string(lineNumber) + "'.",
+				"Kmf file '" + kmfFile.stem().string() + "' was found with version '" + line + "'.",
 				"READ_KMF",
-				LogType::LOG_DEBUG);
+				LogType::LOG_SUCCESS);
 
 			continue;
 		}
@@ -628,7 +642,7 @@ void HandleKMFBlock(KMF kmfBlock)
 					"HANDLE_KMF",
 					LogType::LOG_ERROR);
 
-				return;
+				continue;
 			}
 
 			success << "Copied origin '" << kmfBlock.origin << "' to target '" << target << ".";
@@ -652,7 +666,7 @@ void HandleKMFBlock(KMF kmfBlock)
 					"HANDLE_KMF",
 					LogType::LOG_ERROR);
 
-				return;
+				continue;
 			}
 
 			ostringstream success{};
@@ -679,7 +693,7 @@ void HandleKMFBlock(KMF kmfBlock)
 						"HANDLE_KMF",
 						LogType::LOG_ERROR);
 
-					return;
+					continue;
 				}
 			}
 			else
@@ -695,7 +709,7 @@ void HandleKMFBlock(KMF kmfBlock)
 						"HANDLE_KMF",
 						LogType::LOG_ERROR);
 
-					return;
+					continue;
 				}
 			}
 
@@ -720,7 +734,7 @@ void HandleKMFBlock(KMF kmfBlock)
 					"HANDLE_KMF",
 					LogType::LOG_ERROR);
 
-				return;
+				continue;
 			}
 
 			ostringstream success{};
@@ -743,7 +757,7 @@ void HandleKMFBlock(KMF kmfBlock)
 					"HANDLE_KMF",
 					LogType::LOG_ERROR);
 
-				return;
+				continue;
 			}
 
 			ostringstream success{};
@@ -766,7 +780,7 @@ void HandleKMFBlock(KMF kmfBlock)
 					"HANDLE_KMF",
 					LogType::LOG_ERROR);
 
-				return;
+				continue;
 			}
 
 			ostringstream success{};

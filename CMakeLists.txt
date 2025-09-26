@@ -1,7 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.29.2)
 
-set(PROGRAM_VERSION "KalaMove 1.0.0")
-set(PROGRAM_VERSION_NUMBER 1.0.0.0)
+set(PROGRAM_VERSION_NUMBER 1.1.0.0)
 
 project("KalaMove" VERSION ${PROGRAM_VERSION_NUMBER} LANGUAGES C CXX)
 
@@ -76,7 +75,7 @@ set(CMAKE_INSTALL_BINDIR bin)
 install(TARGETS KalaMove DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Copy important files
-set(COPY_TARGETS README.md LICENSE.md)
+set(COPY_TARGETS README.md LICENSE.md CHANGES.md)
 foreach(FILE ${COPY_TARGETS})
 add_custom_command(TARGET KalaMove POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove 
